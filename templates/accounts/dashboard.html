@@ -7,7 +7,10 @@
     <h1>Welcome to Client Portal Dashboard</h1>
 
     <p>You are logged in successfully.</p>
-
+    <form method="post" action="{% url 'accounts:logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+    </form>
     <p>Your role is: {{ request.user.role }}</p>
 
     {% if request.user.role == 'ADMIN' %}

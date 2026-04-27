@@ -120,3 +120,4 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
+LOGOUT_REDIRECT_URL = 'accounts:login'
