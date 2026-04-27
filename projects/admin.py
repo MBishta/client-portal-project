@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Project
+from .models import Project, ProjectFile
+
+
+class ProjectFileInline(admin.TabularInline):
+    model = ProjectFile
+    extra = 1
+    fields = ('file', 'description', 'visible_to_client')
+    readonly_fields = ('uploaded_at',)
 
 
 @admin.register(Project)
@@ -15,4 +22,26 @@ class ProjectAdmin(admin.ModelAdmin):
         'created_at',
     )
     list_filter = ('status', 'current_stage', 'project_type', 'created_at')
-    search_fields = ('project_code', 'project_name', 'client__client_name', 'assigned_engineer__engineer_name')
+    search_fields = (
+        'project_code',
+        'project_name',
+        'client__client_name',
+        'assigned_engineer__engineer_name',
+    )
+    inlines = [ProjectFileInline]
+
+
+@admin.register(ProjectFile)
+class ProjectFileAdmin(admin.ModelAdmin):
+    list_display = (
+        'project',
+        'description',
+        'visible_to_client',
+        'uploaded_at',
+    )
+    list_filter = ('visible_to_client', 'uploaded_at')
+    search_fields = (
+        'project__project_code',
+        'project__project_name',
+        'description',
+    )

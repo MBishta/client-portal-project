@@ -29,15 +29,44 @@ class Project(models.Model):
     project_name = models.CharField(max_length=200)
     project_code = models.CharField(max_length=50, unique=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='projects')
-    assigned_engineer = models.ForeignKey(Engineer, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
+    assigned_engineer = models.ForeignKey(
+        Engineer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='projects'
+    )
     project_type = models.CharField(max_length=100, blank=True, null=True)
     location = models.CharField(max_length=200, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     expected_end_date = models.DateField(blank=True, null=True)
-    current_stage = models.CharField(max_length=50, choices=Stage.choices, default=Stage.PROJECT_REGISTERED)
-    status = models.CharField(max_length=30, choices=Status.choices, default=Status.NEW)
+    current_stage = models.CharField(
+        max_length=50,
+        choices=Stage.choices,
+        default=Stage.PROJECT_REGISTERED
+    )
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.NEW
+    )
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.project_code} - {self.project_name}"
+
+
+class ProjectFile(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='files'
+    )
+    file = models.FileField(upload_to='project_files/')
+    description = models.CharField(max_length=200, blank=True, null=True)
+    visible_to_client = models.BooleanField(default=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.project.project_code} - {self.description or self.file.name}"
