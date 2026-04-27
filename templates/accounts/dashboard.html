@@ -4,26 +4,30 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <h1>Welcome to Client Portal Dashboard</h1>
-
-    <p>You are logged in successfully.</p>
-    <form method="post" action="{% url 'accounts:logout' %}">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-    </form>
-    <p>Your role is: {{ request.user.role }}</p>
 
     {% if request.user.role == 'ADMIN' %}
-        <h2>Admin Dashboard</h2>
-        <p>You can manage all users, clients, engineers, and projects.</p>
+        <h1>Admin Dashboard</h1>
+        <p>Welcome Admin. You can manage clients, engineers, and projects.</p>
 
     {% elif request.user.role == 'ENGINEER' %}
-        <h2>Engineer Dashboard</h2>
-        <p>You can manage your assigned projects.</p>
+        <h1>Engineer Dashboard</h1>
+        <p>Welcome Engineer. You can manage and update your assigned projects.</p>
 
     {% elif request.user.role == 'CLIENT' %}
-        <h2>Client Dashboard</h2>
-        <p>You can view and follow your projects.</p>
+        <h1>Client Dashboard</h1>
+        <p>Welcome Client. You can view your projects and follow updates.</p>
+
+    {% else %}
+        <h1>Dashboard</h1>
+        <p>Welcome to the Client Portal.</p>
     {% endif %}
+
+    <p>Your role is: {{ request.user.role }}</p>
+
+    <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
 </body>
 </html>
