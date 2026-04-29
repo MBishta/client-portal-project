@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Projects</title>
+</head>
+<body>
+    <h1>Projects List</h1>
+
+    <p>Your role is: {{ request.user.role }}</p>
+
+    {% if projects %}
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>Code</th>
+                <th>Project Name</th>
+                <th>Client</th>
+                <th>Engineer</th>
+                <th>Stage</th>
+                <th>Status</th>
+            </tr>
+
+            {% for project in projects %}
+                <tr>
+                    <td>{{ project.project_code }}</td>
+                    <td>{{ project.project_name }}</td>
+                    <td>{{ project.client }}</td>
+                    <td>{{ project.assigned_engineer }}</td>
+                    <td>{{ project.get_current_stage_display }}</td>
+                    <td>{{ project.get_status_display }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No projects found.</p>
+    {% endif %}
+
+    <br>
+
+    <a href="{% url 'accounts:dashboard' %}">Back to Dashboard</a>
+</body>
+</html>
