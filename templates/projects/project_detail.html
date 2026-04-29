@@ -33,22 +33,43 @@
         <hr>
 
         <h2>Project Files</h2>
-        {% if files %}
-            <ul>
-                {% for file in files %}
-                    <li>
-                        <a href="{{ file.file.url }}" target="_blank">
-                            {{ file.description|default:file.file.name }}
-                        </a>
-                        -
-                        Visible to Client: {{ file.visible_to_client }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No files uploaded.</p>
-        {% endif %}
+{% if files %}
+    <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+        {% for file in files %}
+            <div style="width: 160px; background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                
+                {% if ".jpg" in file.file.url|lower or ".jpeg" in file.file.url|lower or ".png" in file.file.url|lower or ".webp" in file.file.url|lower %}
+                    <a href="{{ file.file.url }}" target="_blank">
+                        <img src="{{ file.file.url }}" alt="Project File" style="width: 100%; height: 120px; object-fit: cover; border: 1px solid #ddd; border-radius: 6px;">
+                    </a>
+                {% else %}
+                    <div style="height: 120px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 6px; background: #f9fafb;">
+                        File
+                    </div>
+                {% endif %}
 
+                <p style="margin: 10px 0 5px 0;">
+                    <a href="{{ file.file.url }}" target="_blank">
+                        {{ file.description|default:file.file.name }}
+                    </a>
+                </p>
+
+                <small>
+                    Uploaded by:
+                    {% if file.uploaded_by %}
+                        {{ file.uploaded_by.username }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                    <br>
+                    Visible to Client: {{ file.visible_to_client }}
+                </small>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No files uploaded.</p>
+{% endif %}
         <hr>
 
         <h2>Project Comments</h2>
