@@ -23,7 +23,9 @@
     {% endif %}
 
     <p>Your role is: {{ request.user.role }}</p>
-
+<p>
+    <a href="{% url 'projects:project_list' %}">View Projects</a>
+</p>
     <form method="post" action="{% url 'accounts:logout' %}">
         {% csrf_token %}
         <button type="submit">Logout</button>
