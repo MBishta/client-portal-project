@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProjectCommentForm, ProjectFileForm
-from .models import Project
+from .models import Project, ProjectFile
 
 
 @login_required
@@ -95,3 +95,19 @@ def project_detail_view(request, pk):
         'comment_form': comment_form,
         'file_form': file_form,
     })
+
+
+@login_required
+def project_file_delete_view(request, pk):
+    project_file = get_object_or_404(
+        ProjectFile,
+        pk=pk,
+        uploaded_by=request.user
+    )
+
+    project_pk = project_file.project.pk
+
+    if request.method == 'POST':
+        project_file.delete()
+
+    return redirect('projects:project_detail', pk=project_pk)

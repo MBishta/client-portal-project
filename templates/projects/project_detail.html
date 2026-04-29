@@ -64,6 +64,14 @@
                     <br>
                     Visible to Client: {{ file.visible_to_client }}
                 </small>
+                {% if file.uploaded_by == request.user %}
+    <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin-top: 10px;">
+        {% csrf_token %}
+        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer;">
+            Delete
+        </button>
+    </form>
+{% endif %}
             </div>
         {% endfor %}
     </div>
