@@ -46,6 +46,11 @@
                         {{ comment.message }}
                         <br>
                         <small>{{ comment.created_at }}</small>
+
+                        {% if comment.attachment %}
+                            <br>
+                            <a href="{{ comment.attachment.url }}" target="_blank">View Attachment</a>
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>
@@ -53,20 +58,37 @@
             <p>No comments yet.</p>
         {% endif %}
 
+        <hr>
+
+        <h2>Upload File</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="file">
+
+            {{ file_form.as_p }}
+
+            <button type="submit">Upload File</button>
+        </form>
+
+        <hr>
+
+        <h2>Add Comment</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="comment">
+
+            {{ comment_form.as_p }}
+
+            <button type="submit">Send Comment</button>
+        </form>
+
     {% else %}
         <h1>Access Denied</h1>
         <p>You do not have permission to view this project.</p>
     {% endif %}
-<hr>
 
-<h2>Add Comment</h2>
-
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit">Send Comment</button>
-</form>
     <br>
     <a href="{% url 'projects:project_list' %}">Back to Projects</a>
 </body>

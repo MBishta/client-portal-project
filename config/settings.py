@@ -124,3 +124,6 @@ AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+MEDIA_URL = '/'
+MEDIA_ROOT = BASE_DIR

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ProjectCommentForm
+from .forms import ProjectCommentForm, ProjectFileForm
 from .models import Project
 
 
@@ -58,24 +58,41 @@ def project_detail_view(request, pk):
         files = []
         comments = []
 
+    comment_form = ProjectCommentForm()
+    file_form = ProjectFileForm()
+
     if request.method == 'POST' and project:
-        form = ProjectCommentForm(request.POST, request.FILES)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.project = project
-            comment.sender = request.user
+        form_type = request.POST.get('form_type')
 
-            if request.user.role == 'CLIENT':
-                comment.visible_to_client = True
+        if form_type == 'comment':
+            comment_form = ProjectCommentForm(request.POST, request.FILES)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.project = project
+                comment.sender = request.user
 
-            comment.save()
-            return redirect('projects:project_detail', pk=project.pk)
-    else:
-        form = ProjectCommentForm()
+                if request.user.role == 'CLIENT':
+                    comment.visible_to_client = True
+
+                comment.save()
+                return redirect('projects:project_detail', pk=project.pk)
+
+        elif form_type == 'file':
+            file_form = ProjectFileForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                project_file = file_form.save(commit=False)
+                project_file.project = project
+
+                if request.user.role == 'CLIENT':
+                    project_file.visible_to_client = True
+
+                project_file.save()
+                return redirect('projects:project_detail', pk=project.pk)
 
     return render(request, 'projects/project_detail.html', {
         'project': project,
         'files': files,
         'comments': comments,
-        'form': form,
+        'comment_form': comment_form,
+        'file_form': file_form,
     })
