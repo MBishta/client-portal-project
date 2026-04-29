@@ -52,6 +52,7 @@ class ProjectFileAdmin(admin.ModelAdmin):
     list_display = (
         'project',
         'description',
+        'uploaded_by',
         'visible_to_client',
         'uploaded_at',
     )
@@ -60,6 +61,7 @@ class ProjectFileAdmin(admin.ModelAdmin):
         'project__project_code',
         'project__project_name',
         'description',
+        'uploaded_by__username',
     )
 
 

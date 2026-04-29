@@ -28,12 +28,16 @@ class Project(models.Model):
 
     project_name = models.CharField(max_length=200)
     project_code = models.CharField(max_length=50, unique=True)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='projects')
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='projects'
+    )
     assigned_engineers = models.ManyToManyField(
-    Engineer,
-    blank=True,
-    related_name='projects'
-     ) 
+        Engineer,
+        blank=True,
+        related_name='projects'
+    )
     project_type = models.CharField(max_length=100, blank=True, null=True)
     location = models.CharField(max_length=200, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
@@ -61,6 +65,13 @@ class ProjectFile(models.Model):
         on_delete=models.CASCADE,
         related_name='files'
     )
+    uploaded_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='uploaded_project_files'
+    )
     file = models.FileField(upload_to='project_files/')
     description = models.CharField(max_length=200, blank=True, null=True)
     visible_to_client = models.BooleanField(default=False)
@@ -68,7 +79,7 @@ class ProjectFile(models.Model):
 
     def __str__(self):
         return f"{self.project.project_code} - {self.description or self.file.name}"
-    
+
 
 class ProjectComment(models.Model):
     project = models.ForeignKey(
