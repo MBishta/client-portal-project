@@ -19,9 +19,9 @@
         <hr>
 
         <h2>Project Files</h2>
-        {% if project.files.all %}
+        {% if files %}
             <ul>
-                {% for file in project.files.all %}
+                {% for file in files %}
                     <li>
                         <a href="{{ file.file.url }}" target="_blank">
                             {{ file.description|default:file.file.name }}
@@ -38,9 +38,9 @@
         <hr>
 
         <h2>Project Comments</h2>
-        {% if project.comments.all %}
+        {% if comments %}
             <ul>
-                {% for comment in project.comments.all %}
+                {% for comment in comments %}
                     <li>
                         <strong>{{ comment.sender.username }}:</strong>
                         {{ comment.message }}
@@ -59,6 +59,6 @@
     {% endif %}
 
     <br>
-<a href="{% url 'projects:project_list' %}">Back to Projects</a>
+    <a href="{% url 'projects:project_list' %}">Back to Projects</a>
 </body>
 </html>

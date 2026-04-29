@@ -31,6 +31,8 @@ def project_list_view(request):
 def project_detail_view(request, pk):
     if request.user.role == 'ADMIN':
         project = get_object_or_404(Project, pk=pk)
+        files = project.files.all()
+        comments = project.comments.all()
 
     elif request.user.role == 'ENGINEER':
         project = get_object_or_404(
@@ -38,6 +40,8 @@ def project_detail_view(request, pk):
             pk=pk,
             assigned_engineer__user=request.user
         )
+        files = project.files.all()
+        comments = project.comments.all()
 
     elif request.user.role == 'CLIENT':
         project = get_object_or_404(
@@ -45,10 +49,16 @@ def project_detail_view(request, pk):
             pk=pk,
             client__user=request.user
         )
+        files = project.files.filter(visible_to_client=True)
+        comments = project.comments.filter(visible_to_client=True)
 
     else:
         project = None
+        files = []
+        comments = []
 
     return render(request, 'projects/project_detail.html', {
-        'project': project
+        'project': project,
+        'files': files,
+        'comments': comments,
     })
