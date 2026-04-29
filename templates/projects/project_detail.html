@@ -1,15 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Project Details</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Project Details{% endblock %}
+
+{% block content %}
+
     {% if project %}
         <h1>{{ project.project_name }}</h1>
 
         <p><strong>Project Code:</strong> {{ project.project_code }}</p>
         <p><strong>Client:</strong> {{ project.client }}</p>
-        <p><strong>Engineer:</strong> {{ project.assigned_engineer }}</p>
+
+        <p><strong>Engineers:</strong></p>
+        <ul>
+            {% for engineer in project.assigned_engineers.all %}
+                <li>
+                    {{ engineer.engineer_name }}
+                    {% if engineer.department %}
+                        - {{ engineer.get_department_display }}
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No engineers assigned</li>
+            {% endfor %}
+        </ul>
+
         <p><strong>Project Type:</strong> {{ project.project_type }}</p>
         <p><strong>Location:</strong> {{ project.location }}</p>
         <p><strong>Current Stage:</strong> {{ project.get_current_stage_display }}</p>
@@ -93,5 +107,5 @@
 
     <br>
     <a href="{% url 'projects:project_list' %}">Back to Projects</a>
-</body>
-</html>
+
+{% endblock %}
