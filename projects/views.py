@@ -77,17 +77,13 @@ def project_detail_view(request, pk):
                 comment.save()
                 return redirect('projects:project_detail', pk=project.pk)
 
-        elif form_type == 'file':
-            file_form = ProjectFileForm(request.POST, request.FILES)
-            if file_form.is_valid():
-                project_file = file_form.save(commit=False)
-                project_file.project = project
-
-                if request.user.role == 'CLIENT':
-                    project_file.visible_to_client = True
-
-                project_file.save()
-                return redirect('projects:project_detail', pk=project.pk)
+        elif form_type == 'file' and request.user.role in ['ADMIN', 'ENGINEER']:
+         file_form = ProjectFileForm(request.POST, request.FILES)
+    if file_form.is_valid():
+        project_file = file_form.save(commit=False)
+        project_file.project = project
+        project_file.save()
+        return redirect('projects:project_detail', pk=project.pk)
 
     return render(request, 'projects/project_detail.html', {
         'project': project,

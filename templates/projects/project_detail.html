@@ -58,18 +58,20 @@
             <p>No comments yet.</p>
         {% endif %}
 
-        <hr>
+        {% if request.user.role != 'CLIENT' %}
+            <hr>
 
-        <h2>Upload File</h2>
+            <h2>Upload File</h2>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="file">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="file">
 
-            {{ file_form.as_p }}
+                {{ file_form.as_p }}
 
-            <button type="submit">Upload File</button>
-        </form>
+                <button type="submit">Upload File</button>
+            </form>
+        {% endif %}
 
         <hr>
 
