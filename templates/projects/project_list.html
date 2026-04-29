@@ -22,7 +22,11 @@
             {% for project in projects %}
                 <tr>
                     <td>{{ project.project_code }}</td>
-                    <td>{{ project.project_name }}</td>
+                    <td>
+    <a href="{% url 'projects:project_detail' project.pk %}">
+        {{ project.project_name }}
+    </a>
+</td>
                     <td>{{ project.client }}</td>
                     <td>{{ project.assigned_engineer }}</td>
                     <td>{{ project.get_current_stage_display }}</td>

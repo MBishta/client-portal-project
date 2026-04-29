@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Details</title>
+</head>
+<body>
+    {% if project %}
+        <h1>{{ project.project_name }}</h1>
+
+        <p><strong>Project Code:</strong> {{ project.project_code }}</p>
+        <p><strong>Client:</strong> {{ project.client }}</p>
+        <p><strong>Engineer:</strong> {{ project.assigned_engineer }}</p>
+        <p><strong>Project Type:</strong> {{ project.project_type }}</p>
+        <p><strong>Location:</strong> {{ project.location }}</p>
+        <p><strong>Current Stage:</strong> {{ project.get_current_stage_display }}</p>
+        <p><strong>Status:</strong> {{ project.get_status_display }}</p>
+        <p><strong>Description:</strong> {{ project.description }}</p>
+
+        <hr>
+
+        <h2>Project Files</h2>
+        {% if project.files.all %}
+            <ul>
+                {% for file in project.files.all %}
+                    <li>
+                        <a href="{{ file.file.url }}" target="_blank">
+                            {{ file.description|default:file.file.name }}
+                        </a>
+                        -
+                        Visible to Client: {{ file.visible_to_client }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No files uploaded.</p>
+        {% endif %}
+
+        <hr>
+
+        <h2>Project Comments</h2>
+        {% if project.comments.all %}
+            <ul>
+                {% for comment in project.comments.all %}
+                    <li>
+                        <strong>{{ comment.sender.username }}:</strong>
+                        {{ comment.message }}
+                        <br>
+                        <small>{{ comment.created_at }}</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments yet.</p>
+        {% endif %}
+
+    {% else %}
+        <h1>Access Denied</h1>
+        <p>You do not have permission to view this project.</p>
+    {% endif %}
+
+    <br>
+<a href="{% url 'projects:project_list' %}">Back to Projects</a>
+</body>
+</html>
