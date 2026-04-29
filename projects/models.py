@@ -70,3 +70,23 @@ class ProjectFile(models.Model):
 
     def __str__(self):
         return f"{self.project.project_code} - {self.description or self.file.name}"
+    
+
+class ProjectComment(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    sender = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.CASCADE,
+        related_name='project_comments'
+    )
+    message = models.TextField()
+    attachment = models.FileField(upload_to='project_comments/', blank=True, null=True)
+    visible_to_client = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.project.project_code} - {self.sender.username}"

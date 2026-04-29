@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project, ProjectFile
+from .models import Project, ProjectFile, ProjectComment
 
 
 class ProjectFileInline(admin.TabularInline):
@@ -8,6 +8,13 @@ class ProjectFileInline(admin.TabularInline):
     extra = 1
     fields = ('file', 'description', 'visible_to_client')
     readonly_fields = ('uploaded_at',)
+
+
+class ProjectCommentInline(admin.TabularInline):
+    model = ProjectComment
+    extra = 1
+    fields = ('sender', 'message', 'attachment', 'visible_to_client')
+    readonly_fields = ('created_at',)
 
 
 @admin.register(Project)
@@ -28,7 +35,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'client__client_name',
         'assigned_engineer__engineer_name',
     )
-    inlines = [ProjectFileInline]
+    inlines = [ProjectFileInline, ProjectCommentInline]
 
 
 @admin.register(ProjectFile)
@@ -44,4 +51,21 @@ class ProjectFileAdmin(admin.ModelAdmin):
         'project__project_code',
         'project__project_name',
         'description',
+    )
+
+
+@admin.register(ProjectComment)
+class ProjectCommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'project',
+        'sender',
+        'visible_to_client',
+        'created_at',
+    )
+    list_filter = ('visible_to_client', 'created_at')
+    search_fields = (
+        'project__project_code',
+        'project__project_name',
+        'sender__username',
+        'message',
     )
