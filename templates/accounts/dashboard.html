@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
 
     {% if request.user.role == 'ADMIN' %}
         <h1>Admin Dashboard</h1>
@@ -19,27 +18,23 @@
 
     {% else %}
         <h1>Dashboard</h1>
-        <p>Welcome to the Client Portal.</p>
+        <p>Welcome to the Project Portal.</p>
     {% endif %}
 
     <p>Your role is: {{ request.user.role }}</p>
-<p>
-    <a href="{% url 'projects:project_list' %}">
-        {% if request.user.role == 'ADMIN' %}
-            Manage Projects
-        {% elif request.user.role == 'ENGINEER' %}
-            My Assigned Projects
-        {% elif request.user.role == 'CLIENT' %}
-            My Projects
-        {% else %}
-            View Projects
-        {% endif %}
-    </a>
-</p>
-    <form method="post" action="{% url 'accounts:logout' %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
 
-</body>
-</html>
+    <p>
+        <a href="{% url 'projects:project_list' %}">
+            {% if request.user.role == 'ADMIN' %}
+                Manage Projects
+            {% elif request.user.role == 'ENGINEER' %}
+                My Assigned Projects
+            {% elif request.user.role == 'CLIENT' %}
+                My Projects
+            {% else %}
+                View Projects
+            {% endif %}
+        </a>
+    </p>
+
+{% endblock %}
