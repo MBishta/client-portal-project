@@ -29,13 +29,11 @@ class Project(models.Model):
     project_name = models.CharField(max_length=200)
     project_code = models.CharField(max_length=50, unique=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='projects')
-    assigned_engineer = models.ForeignKey(
-        Engineer,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='projects'
-    )
+    assigned_engineers = models.ManyToManyField(
+    Engineer,
+    blank=True,
+    related_name='projects'
+     ) 
     project_type = models.CharField(max_length=100, blank=True, null=True)
     location = models.CharField(max_length=200, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)

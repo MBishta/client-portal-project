@@ -28,7 +28,17 @@
     </a>
 </td>
                     <td>{{ project.client }}</td>
-                    <td>{{ project.assigned_engineer }}</td>
+                    <td>
+    {% for engineer in project.assigned_engineers.all %}
+        {{ engineer.engineer_name }} 
+        {% if engineer.department %}
+            ({{ engineer.get_department_display }})
+        {% endif %}
+        <br>
+    {% empty %}
+        No engineers assigned
+    {% endfor %}
+</td>
                     <td>{{ project.get_current_stage_display }}</td>
                     <td>{{ project.get_status_display }}</td>
                 </tr>

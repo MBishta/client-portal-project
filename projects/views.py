@@ -12,7 +12,7 @@ def project_list_view(request):
 
     elif request.user.role == 'ENGINEER':
         projects = Project.objects.filter(
-            assigned_engineer__user=request.user
+            assigned_engineers__user=request.user
         )
 
     elif request.user.role == 'CLIENT':
@@ -39,7 +39,7 @@ def project_detail_view(request, pk):
         project = get_object_or_404(
             Project,
             pk=pk,
-            assigned_engineer__user=request.user
+            assigned_engineers__user=request.user
         )
         files = project.files.all()
         comments = project.comments.all()
@@ -66,6 +66,7 @@ def project_detail_view(request, pk):
 
         if form_type == 'comment':
             comment_form = ProjectCommentForm(request.POST, request.FILES)
+
             if comment_form.is_valid():
                 comment = comment_form.save(commit=False)
                 comment.project = project
@@ -78,12 +79,13 @@ def project_detail_view(request, pk):
                 return redirect('projects:project_detail', pk=project.pk)
 
         elif form_type == 'file' and request.user.role in ['ADMIN', 'ENGINEER']:
-         file_form = ProjectFileForm(request.POST, request.FILES)
-    if file_form.is_valid():
-        project_file = file_form.save(commit=False)
-        project_file.project = project
-        project_file.save()
-        return redirect('projects:project_detail', pk=project.pk)
+            file_form = ProjectFileForm(request.POST, request.FILES)
+
+            if file_form.is_valid():
+                project_file = file_form.save(commit=False)
+                project_file.project = project
+                project_file.save()
+                return redirect('projects:project_detail', pk=project.pk)
 
     return render(request, 'projects/project_detail.html', {
         'project': project,
