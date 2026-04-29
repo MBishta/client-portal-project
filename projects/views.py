@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import ProjectCommentForm
 from .models import Project
 
 
@@ -57,8 +58,24 @@ def project_detail_view(request, pk):
         files = []
         comments = []
 
+    if request.method == 'POST' and project:
+        form = ProjectCommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.project = project
+            comment.sender = request.user
+
+            if request.user.role == 'CLIENT':
+                comment.visible_to_client = True
+
+            comment.save()
+            return redirect('projects:project_detail', pk=project.pk)
+    else:
+        form = ProjectCommentForm()
+
     return render(request, 'projects/project_detail.html', {
         'project': project,
         'files': files,
         'comments': comments,
+        'form': form,
     })
