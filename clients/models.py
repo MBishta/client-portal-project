@@ -1,7 +1,15 @@
+from django.conf import settings
 from django.db import models
 
 
 class Client(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='client_profile',
+        blank=True,
+        null=True
+    )
     client_name = models.CharField(max_length=150)
     company_name = models.CharField(max_length=150, blank=True, null=True)
     phone = models.CharField(max_length=30)
@@ -12,3 +20,4 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+    
