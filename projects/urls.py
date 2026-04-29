@@ -4,6 +4,7 @@ from .views import (
     project_list_view,
     project_detail_view,
     project_file_delete_view,
+    project_file_edit_view,
 )
 
 app_name = 'projects'
@@ -11,5 +12,6 @@ app_name = 'projects'
 urlpatterns = [
     path('', project_list_view, name='project_list'),
     path('<int:pk>/', project_detail_view, name='project_detail'),
+    path('files/<int:pk>/edit/', project_file_edit_view, name='project_file_edit'),
     path('files/<int:pk>/delete/', project_file_delete_view, name='project_file_delete'),
 ]

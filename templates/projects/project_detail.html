@@ -64,14 +64,23 @@
                     <br>
                     Visible to Client: {{ file.visible_to_client }}
                 </small>
+                
                 {% if file.uploaded_by == request.user %}
-    <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin-top: 10px;">
-        {% csrf_token %}
-        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer;">
-            Delete
-        </button>
-    </form>
+    <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <a href="{% url 'projects:project_file_edit' file.pk %}"
+           style="background: #0d6efd; color: white; text-decoration: none; padding: 6px 10px; border-radius: 5px; font-size: 14px; width: 70px; text-align: center; box-sizing: border-box;">
+            Edit
+        </a>
+
+        <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 14px; width: 70px;">
+                Delete
+            </button>
+        </form>
+    </div>
 {% endif %}
+
             </div>
         {% endfor %}
     </div>

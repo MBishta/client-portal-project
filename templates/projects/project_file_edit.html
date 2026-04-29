@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Project File{% endblock %}
+
+{% block content %}
+
+    <h1>Edit Project File</h1>
+
+    <p>
+        <strong>Current file:</strong>
+        <a href="{{ project_file.file.url }}" target="_blank">
+            {{ project_file.file.name }}
+        </a>
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'projects:project_detail' project_file.project.pk %}">
+        Back to Project
+    </a>
+
+{% endblock %}

@@ -111,3 +111,27 @@ def project_file_delete_view(request, pk):
         project_file.delete()
 
     return redirect('projects:project_detail', pk=project_pk)
+
+@login_required
+def project_file_edit_view(request, pk):
+    project_file = get_object_or_404(
+        ProjectFile,
+        pk=pk,
+        uploaded_by=request.user
+    )
+
+    project_pk = project_file.project.pk
+
+    if request.method == 'POST':
+        form = ProjectFileForm(request.POST, request.FILES, instance=project_file)
+
+        if form.is_valid():
+            form.save()
+            return redirect('projects:project_detail', pk=project_pk)
+    else:
+        form = ProjectFileForm(instance=project_file)
+
+    return render(request, 'projects/project_file_edit.html', {
+        'form': form,
+        'project_file': project_file,
+    })
