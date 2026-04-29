@@ -14,6 +14,11 @@ def project_list_view(request):
             assigned_engineer__user=request.user
         )
 
+    elif request.user.role == 'CLIENT':
+        projects = Project.objects.filter(
+            client__user=request.user
+        )
+
     else:
         projects = Project.objects.none()
 
@@ -32,6 +37,13 @@ def project_detail_view(request, pk):
             Project,
             pk=pk,
             assigned_engineer__user=request.user
+        )
+
+    elif request.user.role == 'CLIENT':
+        project = get_object_or_404(
+            Project,
+            pk=pk,
+            client__user=request.user
         )
 
     else:
