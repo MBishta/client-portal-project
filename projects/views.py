@@ -27,8 +27,14 @@ def project_list_view(request):
     else:
         projects = Project.objects.none()
 
+    status_filter = request.GET.get('status')
+
+    if status_filter:
+        projects = projects.filter(status=status_filter)
+
     return render(request, 'projects/project_list.html', {
-        'projects': projects
+        'projects': projects,
+        'status_filter': status_filter,
     })
 
 
