@@ -9,6 +9,12 @@ class ProjectCommentForm(forms.ModelForm):
         fields = ['message', 'attachment']
 
 
+class ProjectCommentEditForm(forms.ModelForm):
+    class Meta:
+        model = ProjectComment
+        fields = ['message', 'attachment', 'visible_to_client']
+
+
 class ProjectFileForm(forms.ModelForm):
     class Meta:
         model = ProjectFile

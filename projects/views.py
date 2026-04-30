@@ -1,8 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ProjectCommentForm, ProjectFileForm
-from .models import Project, ProjectFile
+from .forms import (
+    ProjectCommentForm,
+    ProjectCommentEditForm,
+    ProjectFileForm,
+)
+from .models import Project, ProjectComment, ProjectFile
 
 
 @login_required
@@ -98,21 +102,6 @@ def project_detail_view(request, pk):
 
 
 @login_required
-def project_file_delete_view(request, pk):
-    project_file = get_object_or_404(
-        ProjectFile,
-        pk=pk,
-        uploaded_by=request.user
-    )
-
-    project_pk = project_file.project.pk
-
-    if request.method == 'POST':
-        project_file.delete()
-
-    return redirect('projects:project_detail', pk=project_pk)
-
-@login_required
 def project_file_edit_view(request, pk):
     project_file = get_object_or_404(
         ProjectFile,
@@ -135,3 +124,60 @@ def project_file_edit_view(request, pk):
         'form': form,
         'project_file': project_file,
     })
+
+
+@login_required
+def project_file_delete_view(request, pk):
+    project_file = get_object_or_404(
+        ProjectFile,
+        pk=pk,
+        uploaded_by=request.user
+    )
+
+    project_pk = project_file.project.pk
+
+    if request.method == 'POST':
+        project_file.delete()
+
+    return redirect('projects:project_detail', pk=project_pk)
+
+
+@login_required
+def project_comment_edit_view(request, pk):
+    comment = get_object_or_404(
+        ProjectComment,
+        pk=pk,
+        sender=request.user
+    )
+
+    project_pk = comment.project.pk
+
+    if request.method == 'POST':
+        form = ProjectCommentEditForm(request.POST, request.FILES, instance=comment)
+
+        if form.is_valid():
+            form.save()
+            return redirect('projects:project_detail', pk=project_pk)
+    else:
+        form = ProjectCommentEditForm(instance=comment)
+
+    return render(request, 'projects/project_comment_edit.html', {
+        'form': form,
+        'comment': comment,
+    })
+
+
+@login_required
+def project_comment_delete_view(request, pk):
+    comment = get_object_or_404(
+        ProjectComment,
+        pk=pk,
+        sender=request.user
+    )
+
+    project_pk = comment.project.pk
+
+    if request.method == 'POST':
+        comment.delete()
+
+    return redirect('projects:project_detail', pk=project_pk)

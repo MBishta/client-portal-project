@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Comment{% endblock %}
+
+{% block content %}
+
+    <h1>Edit Comment</h1>
+
+    <p>
+        <strong>Project:</strong> {{ comment.project.project_name }}
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'projects:project_detail' comment.project.pk %}">
+        Back to Project
+    </a>
+
+{% endblock %}

@@ -352,6 +352,22 @@
                         <div class="comment-meta">
                             {{ comment.created_at }}
                         </div>
+                        {% if comment.sender == request.user %}
+    <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <a href="{% url 'projects:project_comment_edit' comment.pk %}"
+           class="btn btn-primary"
+           style="width: 70px; text-align: center; box-sizing: border-box;">
+            Edit
+        </a>
+
+        <form method="post" action="{% url 'projects:project_comment_delete' comment.pk %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" style="width: 70px;">
+                Delete
+            </button>
+        </form>
+    </div>
+{% endif %}
                     </div>
                 {% endfor %}
             {% else %}
