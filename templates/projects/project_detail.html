@@ -4,146 +4,386 @@
 
 {% block content %}
 
-    {% if project %}
-        <h1>{{ project.project_name }}</h1>
+<style>
+    .page-title {
+        margin-bottom: 5px;
+    }
 
-        <p><strong>Project Code:</strong> {{ project.project_code }}</p>
-        <p><strong>Client:</strong> {{ project.client }}</p>
+    .project-subtitle {
+        color: #6b7280;
+        margin-bottom: 25px;
+    }
 
-        <p><strong>Engineers:</strong></p>
-        <ul>
-            {% for engineer in project.assigned_engineers.all %}
-                <li>
-                    {{ engineer.engineer_name }}
-                    {% if engineer.department %}
-                        - {{ engineer.get_department_display }}
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li>No engineers assigned</li>
-            {% endfor %}
-        </ul>
+    .cards-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
 
-        <p><strong>Project Type:</strong> {{ project.project_type }}</p>
-        <p><strong>Location:</strong> {{ project.location }}</p>
-        <p><strong>Current Stage:</strong> {{ project.get_current_stage_display }}</p>
-        <p><strong>Status:</strong> {{ project.get_status_display }}</p>
-        <p><strong>Description:</strong> {{ project.description }}</p>
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
 
-        <hr>
+    .card h2,
+    .section h2 {
+        margin-top: 0;
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
 
-        <h2>Project Files</h2>
-{% if files %}
-    <div style="display: flex; flex-wrap: wrap; gap: 18px;">
-        {% for file in files %}
-            <div style="width: 160px; background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                
-                {% if ".jpg" in file.file.url|lower or ".jpeg" in file.file.url|lower or ".png" in file.file.url|lower or ".webp" in file.file.url|lower %}
-                    <a href="{{ file.file.url }}" target="_blank">
-                        <img src="{{ file.file.url }}" alt="Project File" style="width: 100%; height: 120px; object-fit: cover; border: 1px solid #ddd; border-radius: 6px;">
-                    </a>
-                {% else %}
-                    <div style="height: 120px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 6px; background: #f9fafb;">
-                        File
-                    </div>
-                {% endif %}
+    .info-row {
+        margin-bottom: 10px;
+    }
 
-                <p style="margin: 10px 0 5px 0;">
-                    <a href="{{ file.file.url }}" target="_blank">
-                        {{ file.description|default:file.file.name }}
-                    </a>
-                </p>
+    .label {
+        font-weight: bold;
+        color: #374151;
+    }
 
-                <small>
-                    Uploaded by:
-                    {% if file.uploaded_by %}
-                        {{ file.uploaded_by.username }}
-                    {% else %}
-                        Unknown
-                    {% endif %}
-                    <br>
-                    Visible to Client: {{ file.visible_to_client }}
-                </small>
-                
-                {% if file.uploaded_by == request.user %}
-    <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <a href="{% url 'projects:project_file_edit' file.pk %}"
-           style="background: #0d6efd; color: white; text-decoration: none; padding: 6px 10px; border-radius: 5px; font-size: 14px; width: 70px; text-align: center; box-sizing: border-box;">
-            Edit
-        </a>
+    .badge {
+        display: inline-block;
+        padding: 5px 9px;
+        background: #eef2ff;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #1f2937;
+    }
 
-        <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin: 0;">
-            {% csrf_token %}
-            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 14px; width: 70px;">
-                Delete
-            </button>
-        </form>
-    </div>
-{% endif %}
+    .section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
 
+    .file-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .file-card {
+        width: 180px;
+        background: #ffffff;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .file-preview {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #f9fafb;
+    }
+
+    .file-placeholder {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #f9fafb;
+        color: #374151;
+    }
+
+    .file-title {
+        margin: 10px 0 5px 0;
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #0d6efd;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-full {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .inline-form-box {
+        margin-top: 10px;
+        padding: 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        max-width: 220px;
+    }
+
+    .inline-form-box h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    .inline-form-box form p {
+        margin-bottom: 6px;
+    }
+
+    .inline-form-box input,
+    .inline-form-box textarea,
+    .inline-form-box select {
+        width: 100%;
+        padding: 6px;
+        box-sizing: border-box;
+    }
+
+    .comment-list {
+        margin-bottom: 18px;
+    }
+
+    .comment-item {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+
+    .comment-meta {
+        color: #6b7280;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .back-link {
+        margin-top: 20px;
+    }
+
+    @media (max-width: 800px) {
+        .cards-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% if project %}
+
+    <h1 class="page-title">{{ project.project_name }}</h1>
+    <p class="project-subtitle">
+        Project Code: {{ project.project_code }}
+    </p>
+
+    <div class="cards-grid">
+        <div class="card">
+            <h2>Project Information</h2>
+
+            <div class="info-row">
+                <span class="label">Client:</span>
+                {{ project.client }}
             </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <p>No files uploaded.</p>
-{% endif %}
-        <hr>
 
+            <div class="info-row">
+                <span class="label">Project Type:</span>
+                {{ project.project_type }}
+            </div>
+
+            <div class="info-row">
+                <span class="label">Location:</span>
+                {{ project.location }}
+            </div>
+
+            <div class="info-row">
+                <span class="label">Current Stage:</span>
+                <span class="badge">{{ project.get_current_stage_display }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Status:</span>
+                <span class="badge">{{ project.get_status_display }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Description:</span>
+                <br>
+                {{ project.description }}
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Assigned Engineers</h2>
+
+            {% if project.assigned_engineers.all %}
+                <ul>
+                    {% for engineer in project.assigned_engineers.all %}
+                        <li>
+                            {{ engineer.engineer_name }}
+                            {% if engineer.department %}
+                                - {{ engineer.get_department_display }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No engineers assigned.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Project Files</h2>
+
+        {% if files %}
+            <div class="file-grid">
+                {% for file in files %}
+                    <div class="file-card">
+
+                        {% if ".jpg" in file.file.url|lower or ".jpeg" in file.file.url|lower or ".png" in file.file.url|lower or ".webp" in file.file.url|lower %}
+                            <a href="{{ file.file.url }}" target="_blank">
+                                <img src="{{ file.file.url }}" alt="Project File" class="file-preview">
+                            </a>
+                        {% else %}
+                            <a href="{{ file.file.url }}" target="_blank" style="text-decoration: none;">
+                                <div class="file-placeholder">
+                                    File
+                                </div>
+                            </a>
+                        {% endif %}
+
+                        <p class="file-title">
+                            <a href="{{ file.file.url }}" target="_blank">
+                                {{ file.description|default:file.file.name }}
+                            </a>
+                        </p>
+
+                        <small>
+                            Uploaded by:
+                            {% if file.uploaded_by %}
+                                {{ file.uploaded_by.username }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                            <br>
+                            Visible to Client: {{ file.visible_to_client }}
+                        </small>
+
+                        {% if file.uploaded_by == request.user %}
+                            <div class="file-actions">
+                                <a href="{% url 'projects:project_file_edit' file.pk %}" class="btn btn-primary btn-full">
+                                    Edit
+                                </a>
+
+                                <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin: 0; width: 100%;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-full">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No files uploaded.</p>
+        {% endif %}
+
+        {% if request.user.role != 'CLIENT' %}
+            <div class="inline-form-box">
+                <h3>Upload File</h3>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="file">
+
+                    {{ file_form.as_p }}
+
+                    <button type="submit" class="btn btn-primary">Upload File</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
         <h2>Project Comments</h2>
-        {% if comments %}
-            <ul>
+
+        <div class="comment-list">
+            {% if comments %}
                 {% for comment in comments %}
-                    <li>
+                    <div class="comment-item">
                         <strong>{{ comment.sender.username }}:</strong>
                         {{ comment.message }}
-                        <br>
-                        <small>{{ comment.created_at }}</small>
 
                         {% if comment.attachment %}
                             <br>
                             <a href="{{ comment.attachment.url }}" target="_blank">View Attachment</a>
                         {% endif %}
-                    </li>
+
+                        <div class="comment-meta">
+                            {{ comment.created_at }}
+                        </div>
+                    </div>
                 {% endfor %}
-            </ul>
-        {% else %}
-            <p>No comments yet.</p>
-        {% endif %}
+            {% else %}
+                <p>No comments yet.</p>
+            {% endif %}
+        </div>
 
-        {% if request.user.role != 'CLIENT' %}
-            <hr>
-
-            <h2>Upload File</h2>
+        <div class="inline-form-box">
+            <h3>Add Comment</h3>
 
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="hidden" name="form_type" value="file">
+                <input type="hidden" name="form_type" value="comment">
 
-                {{ file_form.as_p }}
+                {{ comment_form.as_p }}
 
-                <button type="submit">Upload File</button>
+                <button type="submit" class="btn btn-primary">Send Comment</button>
             </form>
-        {% endif %}
+        </div>
+    </div>
 
-        <hr>
-
-        <h2>Add Comment</h2>
-
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="comment">
-
-            {{ comment_form.as_p }}
-
-            <button type="submit">Send Comment</button>
-        </form>
-
-    {% else %}
+{% else %}
+    <div class="section">
         <h1>Access Denied</h1>
         <p>You do not have permission to view this project.</p>
-    {% endif %}
+    </div>
+{% endif %}
 
-    <br>
-    <a href="{% url 'projects:project_list' %}">Back to Projects</a>
+<div class="back-link">
+    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">
+        Back to Projects
+    </a>
+</div>
 
 {% endblock %}
