@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from .models import Client
 
@@ -13,4 +13,19 @@ def client_list_view(request):
 
     return render(request, 'clients/client_list.html', {
         'clients': clients
+    })
+
+
+@login_required
+def client_detail_view(request, pk):
+    if request.user.role != 'ADMIN':
+        client = None
+        projects = []
+    else:
+        client = get_object_or_404(Client, pk=pk)
+        projects = client.projects.all()
+
+    return render(request, 'clients/client_detail.html', {
+        'client': client,
+        'projects': projects,
     })
