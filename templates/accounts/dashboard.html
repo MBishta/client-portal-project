@@ -199,6 +199,10 @@
             Add Engineer
         </a>
 
+        <a href="{% url 'projects:project_add' %}" style="margin-left: 10px;">
+           Add Project
+        </a>
+
      <a href="{% url 'projects:project_list' %}" style="margin-left: 10px;">
         {% if request.user.role == 'ADMIN' %}
             Manage Projects

@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import (
+    ProjectForm,
     ProjectCommentForm,
     ProjectCommentEditForm,
     ProjectFileForm,
@@ -35,6 +36,25 @@ def project_list_view(request):
     return render(request, 'projects/project_list.html', {
         'projects': projects,
         'status_filter': status_filter,
+    })
+
+
+@login_required
+def project_create_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('projects:project_list')
+    else:
+        form = ProjectForm()
+
+    return render(request, 'projects/project_form.html', {
+        'form': form
     })
 
 
