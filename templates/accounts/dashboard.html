@@ -99,15 +99,20 @@
 
 <div class="stats-grid">
     {% if request.user.role == 'ADMIN' %}
-        <div class="stat-card">
-            <h3>Total Clients</h3>
-            <div class="stat-number">{{ total_clients }}</div>
-        </div>
 
-        <div class="stat-card">
-            <h3>Total Engineers</h3>
-            <div class="stat-number">{{ total_engineers }}</div>
-        </div>
+        <a href="{% url 'clients:client_list' %}" class="stat-link">
+            <div class="stat-card">
+                <h3>Total Clients</h3>
+                <div class="stat-number">{{ total_clients }}</div>
+            </div>
+        </a>
+
+        <a href="{% url 'engineers:engineer_list' %}" class="stat-link">
+            <div class="stat-card">
+                <h3>Total Engineers</h3>
+                <div class="stat-number">{{ total_engineers }}</div>
+            </div>
+        </a>
 
         <a href="{% url 'projects:project_list' %}" class="stat-link">
             <div class="stat-card">
@@ -117,6 +122,7 @@
         </a>
 
     {% elif request.user.role == 'ENGINEER' %}
+
         <a href="{% url 'projects:project_list' %}" class="stat-link">
             <div class="stat-card">
                 <h3>My Assigned Projects</h3>
@@ -160,6 +166,7 @@
         </a>
 
     {% elif request.user.role == 'CLIENT' %}
+
         <a href="{% url 'projects:project_list' %}" class="stat-link">
             <div class="stat-card">
                 <h3>My Projects</h3>
@@ -171,6 +178,7 @@
             <h3>Active Projects</h3>
             <div class="stat-number">{{ active_projects_count }}</div>
         </div>
+
     {% endif %}
 </div>
 
