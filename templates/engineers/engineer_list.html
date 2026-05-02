@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Engineers{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .engineers-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .engineers-table th {
+        background: #1f2937;
+        color: white;
+        text-align: left;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .engineers-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .engineers-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+</style>
+
+<div class="page-header">
+    <h1>Engineers List</h1>
+</div>
+
+{% if engineers %}
+    <table class="engineers-table">
+        <tr>
+            <th>Engineer Name</th>
+            <th>User Account</th>
+            <th>Department</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Projects</th>
+            <th>Status</th>
+        </tr>
+
+        {% for engineer in engineers %}
+            <tr>
+                <td>{{ engineer.engineer_name }}</td>
+                <td>{{ engineer.user.username }}</td>
+                <td>
+                    {% if engineer.department %}
+                        {{ engineer.get_department_display }}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </td>
+                <td>{{ engineer.phone }}</td>
+                <td>{{ engineer.email }}</td>
+                <td>{{ engineer.projects.count }}</td>
+                <td>
+                    {% if engineer.is_active %}
+                        Active
+                    {% else %}
+                        Inactive
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="empty-message">
+        <p>No engineers found.</p>
+    </div>
+{% endif %}
+
+{% endblock %}
