@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Engineer Details{% endblock %}
+
+{% block content %}
+
+<style>
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+
+    .info-row {
+        margin-bottom: 10px;
+    }
+
+    .label {
+        font-weight: bold;
+        color: #374151;
+    }
+
+    .projects-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .projects-table th {
+        background: #1f2937;
+        color: white;
+        text-align: left;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .projects-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .projects-table a {
+        color: #0d6efd;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .btn {
+        display: inline-block;
+        background: #6b7280;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 20px;
+    }
+</style>
+
+{% if engineer %}
+    <h1>{{ engineer.engineer_name }}</h1>
+
+    <div class="card">
+        <h2>Engineer Information</h2>
+
+        <div class="info-row">
+            <span class="label">User Account:</span>
+            {{ engineer.user.username }}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Department:</span>
+            {% if engineer.department %}
+                {{ engineer.get_department_display }}
+            {% else %}
+                Not assigned
+            {% endif %}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Phone:</span>
+            {{ engineer.phone }}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Email:</span>
+            {{ engineer.email }}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Specialization:</span>
+            {{ engineer.specialization }}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Status:</span>
+            {% if engineer.is_active %}
+                Active
+            {% else %}
+                Inactive
+            {% endif %}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Created At:</span>
+            {{ engineer.created_at }}
+        </div>
+    </div>
+
+    <h2>Assigned Projects</h2>
+
+    {% if projects %}
+        <table class="projects-table">
+            <tr>
+                <th>Code</th>
+                <th>Project Name</th>
+                <th>Client</th>
+                <th>Stage</th>
+                <th>Status</th>
+            </tr>
+
+            {% for project in projects %}
+                <tr>
+                    <td>{{ project.project_code }}</td>
+                    <td>
+                        <a href="{% url 'projects:project_detail' project.pk %}">
+                            {{ project.project_name }}
+                        </a>
+                    </td>
+                    <td>{{ project.client }}</td>
+                    <td>{{ project.get_current_stage_display }}</td>
+                    <td>{{ project.get_status_display }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No projects assigned to this engineer.</p>
+    {% endif %}
+
+{% else %}
+    <h1>Access Denied</h1>
+    <p>You do not have permission to view this engineer.</p>
+{% endif %}
+
+<a href="{% url 'engineers:engineer_list' %}" class="btn">Back to Engineers</a>
+
+{% endblock %}
