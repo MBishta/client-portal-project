@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import ClientForm
 from .models import Client
 
 
@@ -28,4 +29,23 @@ def client_detail_view(request, pk):
     return render(request, 'clients/client_detail.html', {
         'client': client,
         'projects': projects,
+    })
+
+
+@login_required
+def client_create_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('clients:client_list')
+    else:
+        form = ClientForm()
+
+    return render(request, 'clients/client_form.html', {
+        'form': form
     })
