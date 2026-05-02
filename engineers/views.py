@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import EngineerForm
 from .models import Engineer
 
 
@@ -28,4 +29,23 @@ def engineer_detail_view(request, pk):
     return render(request, 'engineers/engineer_detail.html', {
         'engineer': engineer,
         'projects': projects,
+    })
+
+
+@login_required
+def engineer_create_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = EngineerForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('engineers:engineer_list')
+    else:
+        form = EngineerForm()
+
+    return render(request, 'engineers/engineer_form.html', {
+        'form': form
     })

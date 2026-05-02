@@ -185,7 +185,21 @@
 <div class="quick-actions">
     <h2>Quick Actions</h2>
 
-    <a href="{% url 'projects:project_list' %}">
+    
+
+    {% if request.user.role == 'ADMIN' %}
+        <a href="{% url 'accounts:user_add' %}" style="margin-left: 10px;">
+            Add User
+        </a>
+
+        <a href="{% url 'clients:client_add' %}" style="margin-left: 10px;">
+            Add Client
+        </a>
+        <a href="{% url 'engineers:engineer_add' %}" style="margin-left: 10px;">
+            Add Engineer
+        </a>
+
+     <a href="{% url 'projects:project_list' %}" style="margin-left: 10px;">
         {% if request.user.role == 'ADMIN' %}
             Manage Projects
         {% elif request.user.role == 'ENGINEER' %}
@@ -196,15 +210,6 @@
             View Projects
         {% endif %}
     </a>
-
-    {% if request.user.role == 'ADMIN' %}
-        <a href="{% url 'accounts:user_add' %}" style="margin-left: 10px;">
-            Add New User
-        </a>
-
-        <a href="{% url 'clients:client_add' %}" style="margin-left: 10px;">
-            Add Client
-        </a>
     {% endif %}
 </div>
 

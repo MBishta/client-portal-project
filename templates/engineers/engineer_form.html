@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Engineer{% endblock %}
+
+{% block content %}
+
+<style>
+    .form-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        max-width: 600px;
+    }
+
+    .form-card form p {
+        margin-bottom: 12px;
+    }
+
+    .form-card input,
+    .form-card textarea,
+    .form-card select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .form-card input[type="checkbox"] {
+        width: auto;
+    }
+
+    .btn {
+        display: inline-block;
+        border: none;
+        padding: 9px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #0d6efd;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+        margin-left: 8px;
+    }
+</style>
+
+<h1>Add Engineer</h1>
+
+<div class="form-card">
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Save Engineer</button>
+
+        <a href="{% url 'engineers:engineer_list' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+
+{% endblock %}
