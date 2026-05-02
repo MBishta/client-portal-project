@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from clients.models import Client
 from engineers.models import Engineer
 from projects.models import Project
+
+from .forms import PortalUserCreationForm
 
 
 class CustomLoginView(LoginView):
@@ -43,3 +45,22 @@ def dashboard_view(request):
         ).count()
 
     return render(request, 'accounts/dashboard.html', context)
+
+
+@login_required
+def user_create_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = PortalUserCreationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('accounts:dashboard')
+    else:
+        form = PortalUserCreationForm()
+
+    return render(request, 'accounts/user_form.html', {
+        'form': form
+    })
