@@ -196,6 +196,12 @@
             View Projects
         {% endif %}
     </a>
+
+    {% if request.user.role == 'ADMIN' %}
+        <a href="{% url 'accounts:user_add' %}" style="margin-left: 10px;">
+            Add New User
+        </a>
+    {% endif %}
 </div>
 
 {% endblock %}
