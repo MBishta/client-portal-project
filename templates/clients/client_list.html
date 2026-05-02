@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Clients{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .clients-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .clients-table th {
+        background: #1f2937;
+        color: white;
+        text-align: left;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .clients-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .clients-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+</style>
+
+<div class="page-header">
+    <h1>Clients List</h1>
+</div>
+
+{% if clients %}
+    <table class="clients-table">
+        <tr>
+            <th>Client Name</th>
+            <th>User Account</th>
+            <th>Company</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Projects</th>
+            <th>Status</th>
+        </tr>
+
+        {% for client in clients %}
+            <tr>
+                <td>{{ client.client_name }}</td>
+                <td>
+                    {% if client.user %}
+                        {{ client.user.username }}
+                    {% else %}
+                        No user linked
+                    {% endif %}
+                </td>
+                <td>{{ client.company_name }}</td>
+                <td>{{ client.phone }}</td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.projects.count }}</td>
+                <td>
+                    {% if client.is_active %}
+                        Active
+                    {% else %}
+                        Inactive
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="empty-message">
+        <p>No clients found.</p>
+    </div>
+{% endif %}
+
+{% endblock %}
