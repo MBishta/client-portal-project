@@ -54,7 +54,48 @@ def project_create_view(request):
         form = ProjectForm()
 
     return render(request, 'projects/project_form.html', {
-        'form': form
+        'form': form,
+        'page_title': 'Add Project',
+        'button_text': 'Save Project',
+    })
+
+
+@login_required
+def project_edit_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, instance=project)
+
+        if form.is_valid():
+            form.save()
+            return redirect('projects:project_detail', pk=project.pk)
+    else:
+        form = ProjectForm(instance=project)
+
+    return render(request, 'projects/project_form.html', {
+        'form': form,
+        'page_title': 'Edit Project',
+        'button_text': 'Save Changes',
+    })
+
+
+@login_required
+def project_delete_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == 'POST':
+        project.delete()
+        return redirect('projects:project_list')
+
+    return render(request, 'projects/project_confirm_delete.html', {
+        'project': project
     })
 
 

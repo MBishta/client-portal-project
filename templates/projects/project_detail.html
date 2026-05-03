@@ -203,6 +203,25 @@
         Project Code: {{ project.project_code }}
     </p>
 
+    {% if request.user.role == 'ADMIN' %}
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'projects:project_edit' project.pk %}" class="btn btn-primary">
+            Edit Project
+        </a>
+
+        <form method="post"
+              action="{% url 'projects:project_delete' project.pk %}"
+              style="display: inline;"
+              onsubmit="return confirm('Are you sure you want to delete this project?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" style="margin-left: 8px;">
+                Delete Project
+            </button>
+        </form>
+    </div>
+{% endif %}
+
+
     <div class="cards-grid">
         <div class="card">
             <h2>Project Information</h2>
