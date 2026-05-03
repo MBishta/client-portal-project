@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import (
@@ -28,15 +29,25 @@ def project_list_view(request):
     else:
         projects = Project.objects.none()
 
+
     status_filter = request.GET.get('status')
+    search_query = request.GET.get('q')
 
-    if status_filter:
-        projects = projects.filter(status=status_filter)
+    if status_filter: projects = projects.filter(status=status_filter)
 
+    if search_query: projects = projects.filter(
+        Q(project_name__icontains=search_query) |
+        Q(project_code__icontains=search_query) |
+        Q(client__client_name__icontains=search_query) |
+        Q(assigned_engineers__engineer_name__icontains=search_query)
+    ).distinct()
+        
     return render(request, 'projects/project_list.html', {
-        'projects': projects,
-        'status_filter': status_filter,
-    })
+
+    'projects': projects,
+    'status_filter': status_filter,
+    'search_query': search_query,
+})
 
 
 @login_required

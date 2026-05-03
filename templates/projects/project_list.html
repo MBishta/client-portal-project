@@ -98,8 +98,25 @@
         align-items: center;
     }
 
-    .bulk-actions {
+    .top-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 15px;
+        gap: 15px;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .search-box input {
+        padding: 8px;
+        width: 320px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
     }
 </style>
 
@@ -118,10 +135,44 @@
         {% csrf_token %}
 
         {% if request.user.role == 'ADMIN' %}
-            <div class="bulk-actions">
+            <div class="top-actions-row">
                 <button type="submit" class="btn btn-danger">
                     Delete Selected
                 </button>
+
+                <div class="search-box">
+                    <input type="text"
+                           id="projectSearchInput"
+                           value="{{ search_query|default:'' }}"
+                           placeholder="Search by project, code, client, or engineer"
+                           onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchProjects(); }">
+
+                    <button type="button" class="btn btn-primary" onclick="searchProjects()">
+                        Search
+                    </button>
+
+                    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">
+                        Clear
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="top-actions-row" style="justify-content: flex-end;">
+                <div class="search-box">
+                    <input type="text"
+                           id="projectSearchInput"
+                           value="{{ search_query|default:'' }}"
+                           placeholder="Search by project, code, client, or engineer"
+                           onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchProjects(); }">
+
+                    <button type="button" class="btn btn-primary" onclick="searchProjects()">
+                        Search
+                    </button>
+
+                    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">
+                        Clear
+                    </a>
+                </div>
             </div>
         {% endif %}
 
@@ -204,9 +255,43 @@
         </table>
     </form>
 {% else %}
+    <div class="top-actions-row" style="justify-content: flex-end;">
+        <div class="search-box">
+            <input type="text"
+                   id="projectSearchInput"
+                   value="{{ search_query|default:'' }}"
+                   placeholder="Search by project, code, client, or engineer"
+                   onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchProjects(); }">
+
+            <button type="button" class="btn btn-primary" onclick="searchProjects()">
+                Search
+            </button>
+
+            <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">
+                Clear
+            </a>
+        </div>
+    </div>
+
     <div class="empty-message">
         <p>No projects found.</p>
     </div>
 {% endif %}
+
+<script>
+    function searchProjects() {
+        const searchInput = document.getElementById('projectSearchInput');
+        const searchValue = searchInput ? searchInput.value.trim() : '';
+        const params = new URLSearchParams(window.location.search);
+
+        if (searchValue) {
+            params.set('q', searchValue);
+        } else {
+            params.delete('q');
+        }
+
+        window.location.href = "{% url 'projects:project_list' %}?" + params.toString();
+    }
+</script>
 
 {% endblock %}
