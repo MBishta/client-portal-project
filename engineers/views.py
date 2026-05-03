@@ -88,3 +88,17 @@ def engineer_delete_view(request, pk):
         return redirect('engineers:engineer_list')
 
     return redirect('engineers:engineer_detail', pk=engineer.pk)
+
+
+@login_required
+def engineer_bulk_delete_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        selected_engineers = request.POST.getlist('selected_engineers')
+
+        if selected_engineers:
+            Engineer.objects.filter(id__in=selected_engineers).delete()
+
+    return redirect('engineers:engineer_list')
