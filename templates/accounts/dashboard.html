@@ -100,6 +100,13 @@
 <div class="stats-grid">
     {% if request.user.role == 'ADMIN' %}
 
+        <a href="{% url 'accounts:user_list' %}" class="stat-link">
+            <div class="stat-card">
+               <h3>Total Users</h3>
+            <div class="stat-number">{{ total_users }}</div>
+         </div>
+        </a>
+
         <a href="{% url 'clients:client_list' %}" class="stat-link">
             <div class="stat-card">
                 <h3>Total Clients</h3>

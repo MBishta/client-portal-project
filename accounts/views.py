@@ -1,12 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from clients.models import Client
 from engineers.models import Engineer
 from projects.models import Project
 
-from .forms import PortalUserCreationForm
+from .forms import PortalUserCreationForm, PortalUserEditForm
+from .models import User
 
 
 class CustomLoginView(LoginView):
@@ -18,6 +19,7 @@ def dashboard_view(request):
     context = {}
 
     if request.user.role == 'ADMIN':
+        context['total_users'] = User.objects.count()
         context['total_clients'] = Client.objects.count()
         context['total_engineers'] = Engineer.objects.count()
         context['total_projects'] = Project.objects.count()
@@ -48,6 +50,18 @@ def dashboard_view(request):
 
 
 @login_required
+def user_list_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    users = User.objects.all()
+
+    return render(request, 'accounts/user_list.html', {
+        'users': users
+    })
+
+
+@login_required
 def user_create_view(request):
     if request.user.role != 'ADMIN':
         return redirect('accounts:dashboard')
@@ -57,10 +71,62 @@ def user_create_view(request):
 
         if form.is_valid():
             form.save()
-            return redirect('accounts:dashboard')
+            return redirect('accounts:user_list')
     else:
         form = PortalUserCreationForm()
 
     return render(request, 'accounts/user_form.html', {
-        'form': form
+        'form': form,
+        'page_title': 'Add User',
+        'button_text': 'Create User',
     })
+
+
+@login_required
+def user_edit_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        form = PortalUserEditForm(request.POST, instance=user_obj)
+
+        if form.is_valid():
+            form.save()
+            return redirect('accounts:user_list')
+    else:
+        form = PortalUserEditForm(instance=user_obj)
+
+    return render(request, 'accounts/user_form.html', {
+        'form': form,
+        'page_title': 'Edit User',
+        'button_text': 'Save Changes',
+    })
+
+
+@login_required
+def user_delete_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        user_obj.delete()
+
+    return redirect('accounts:user_list')
+
+
+@login_required
+def user_bulk_delete_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        selected_users = request.POST.getlist('selected_users')
+
+        if selected_users:
+            User.objects.filter(id__in=selected_users).delete()
+
+    return redirect('accounts:user_list')

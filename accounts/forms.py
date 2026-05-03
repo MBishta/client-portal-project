@@ -28,3 +28,17 @@ class PortalUserCreationForm(forms.ModelForm):
             user.save()
 
         return user
+
+
+class PortalUserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'role',
+            'is_active',
+            'is_staff',
+        ]
