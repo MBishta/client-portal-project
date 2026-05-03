@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ClientForm
@@ -12,9 +13,20 @@ def client_list_view(request):
     else:
         clients = Client.objects.all()
 
+    search_query = request.GET.get('q')
+    if search_query:
+        clients = clients.filter(
+        Q(client_name__icontains=search_query) |
+        Q(company_name__icontains=search_query) |
+        Q(phone__icontains=search_query) |
+        Q(email__icontains=search_query) |
+        Q(user__username__icontains=search_query)
+    ).distinct()
+    
     return render(request, 'clients/client_list.html', {
-        'clients': clients
-    })
+    'clients': clients,
+    'search_query': search_query,
+})
 
 
 @login_required
