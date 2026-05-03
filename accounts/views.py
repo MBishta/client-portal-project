@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404, redirect, render
@@ -137,7 +138,43 @@ def user_delete_view(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
     if request.method == 'POST':
+        # Prevent deleting the currently logged-in user
+        if user_obj == request.user:
+            return redirect('accounts:user_list')
+
+        # Prevent deleting the last admin user
+        if user_obj.role == 'ADMIN':
+            admin_count = User.objects.filter(role='ADMIN').count()
+
+            if admin_count <= 1:
+                return redirect('accounts:user_list')
+
         user_obj.delete()
+
+    return redirect('accounts:user_list')
+
+
+@login_required
+def user_delete_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        if user_obj == request.user:
+            messages.error(request, 'You cannot delete your own account.')
+            return redirect('accounts:user_list')
+
+        if user_obj.role == 'ADMIN':
+            admin_count = User.objects.filter(role='ADMIN').count()
+
+            if admin_count <= 1:
+                messages.error(request, 'You cannot delete the last admin account.')
+                return redirect('accounts:user_list')
+
+        user_obj.delete()
+        messages.success(request, 'User deleted successfully.')
 
     return redirect('accounts:user_list')
 
@@ -150,7 +187,35 @@ def user_bulk_delete_view(request):
     if request.method == 'POST':
         selected_users = request.POST.getlist('selected_users')
 
+        deleted_count = 0
+        skipped_own_account = False
+        skipped_last_admin = False
+
         if selected_users:
-            User.objects.filter(id__in=selected_users).delete()
+            users_to_delete = User.objects.filter(id__in=selected_users)
+
+            for user_obj in users_to_delete:
+                if user_obj == request.user:
+                    skipped_own_account = True
+                    continue
+
+                if user_obj.role == 'ADMIN':
+                    admin_count = User.objects.filter(role='ADMIN').count()
+
+                    if admin_count <= 1:
+                        skipped_last_admin = True
+                        continue
+
+                user_obj.delete()
+                deleted_count += 1
+
+        if deleted_count > 0:
+            messages.success(request, f'{deleted_count} user(s) deleted successfully.')
+
+        if skipped_own_account:
+            messages.error(request, 'Your own account was not deleted.')
+
+        if skipped_last_admin:
+            messages.error(request, 'The last admin account was not deleted.')
 
     return redirect('accounts:user_list')

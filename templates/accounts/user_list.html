@@ -83,6 +83,15 @@
     </a>
 </div>
 
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message|escapejs }}");
+        {% endfor %}
+    </script>
+    {% endif %}
+
+
 {% if users %}
     <form method="post"
           action="{% url 'accounts:user_bulk_delete' %}"
