@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Add User{% endblock %}
+{% block title %}{{ page_title|default:"User Form" }}{% endblock %}
 
 {% block content %}
 
@@ -24,6 +24,10 @@
         box-sizing: border-box;
     }
 
+    .form-card input[type="checkbox"] {
+        width: auto;
+    }
+
     .btn {
         display: inline-block;
         border: none;
@@ -44,9 +48,50 @@
         color: white;
         margin-left: 8px;
     }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: white;
+        margin-left: 8px;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-box {
+        background: white;
+        padding: 22px;
+        border-radius: 10px;
+        width: 420px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-box h2 {
+        margin-top: 0;
+    }
+
+    .modal-box form p {
+        margin-bottom: 12px;
+    }
+
+    .modal-box input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
 </style>
 
-<h1>Add User</h1>
+<h1>{{ page_title|default:"Add User" }}</h1>
 
 <div class="form-card">
     <form method="post">
@@ -54,12 +99,57 @@
 
         {{ form.as_p }}
 
-        <button type="submit" class="btn btn-primary">Create User</button>
+        <button type="submit" class="btn btn-primary">
+            {{ button_text|default:"Create User" }}
+        </button>
 
-        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+        {% if is_edit %}
+            <button type="button" class="btn btn-warning" onclick="openPasswordModal()">
+                Reset Password
+            </button>
+        {% endif %}
+
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">
             Cancel
         </a>
     </form>
 </div>
+
+{% if is_edit %}
+    <div id="passwordModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Reset Password</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="reset_password">
+
+                {{ password_form.as_p }}
+
+                <button type="submit" class="btn btn-primary">
+                    Save
+                </button>
+
+                <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        {% if password_changed %}
+            alert('Password changed successfully.');
+        {% endif %}
+    </script>
+{% endif %}
 
 {% endblock %}

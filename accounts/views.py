@@ -6,7 +6,11 @@ from clients.models import Client
 from engineers.models import Engineer
 from projects.models import Project
 
-from .forms import PortalUserCreationForm, PortalUserEditForm
+from .forms import (
+    PortalUserCreationForm,
+    PortalUserEditForm,
+    PortalUserPasswordResetForm,
+)
 from .models import User
 
 
@@ -79,6 +83,7 @@ def user_create_view(request):
         'form': form,
         'page_title': 'Add User',
         'button_text': 'Create User',
+        'is_edit': False,
     })
 
 
@@ -90,18 +95,37 @@ def user_edit_view(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
     if request.method == 'POST':
-        form = PortalUserEditForm(request.POST, instance=user_obj)
+        form_type = request.POST.get('form_type')
 
-        if form.is_valid():
-            form.save()
-            return redirect('accounts:user_list')
+        if form_type == 'reset_password':
+            password_form = PortalUserPasswordResetForm(request.POST)
+
+            if password_form.is_valid():
+                user_obj.set_password(password_form.cleaned_data['new_password'])
+                user_obj.save()
+                return redirect(f'/accounts/users/{user_obj.pk}/edit/?password_changed=1')
+
+            form = PortalUserEditForm(instance=user_obj)
+
+        else:
+            form = PortalUserEditForm(request.POST, instance=user_obj)
+            password_form = PortalUserPasswordResetForm()
+
+            if form.is_valid():
+                form.save()
+                return redirect('accounts:user_list')
     else:
         form = PortalUserEditForm(instance=user_obj)
+        password_form = PortalUserPasswordResetForm()
 
     return render(request, 'accounts/user_form.html', {
         'form': form,
+        'password_form': password_form,
+        'user_obj': user_obj,
         'page_title': 'Edit User',
         'button_text': 'Save Changes',
+        'is_edit': True,
+        'password_changed': request.GET.get('password_changed'),
     })
 
 
