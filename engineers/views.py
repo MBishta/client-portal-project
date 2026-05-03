@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EngineerForm
@@ -12,8 +13,21 @@ def engineer_list_view(request):
     else:
         engineers = Engineer.objects.all()
 
+    search_query = request.GET.get('q')
+
+    if search_query:
+        engineers = engineers.filter(
+            Q(engineer_name__icontains=search_query) |
+            Q(department__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(specialization__icontains=search_query) |
+            Q(user__username__icontains=search_query)
+        ).distinct()
+
     return render(request, 'engineers/engineer_list.html', {
-        'engineers': engineers
+        'engineers': engineers,
+        'search_query': search_query,
     })
 
 
