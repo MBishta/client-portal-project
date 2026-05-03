@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from clients.models import Client
@@ -60,9 +61,20 @@ def user_list_view(request):
         return redirect('accounts:dashboard')
 
     users = User.objects.all()
+    search_query = request.GET.get('q')
+
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(role__icontains=search_query)
+        ).distinct()
 
     return render(request, 'accounts/user_list.html', {
-        'users': users
+        'users': users,
+        'search_query': search_query,
     })
 
 
