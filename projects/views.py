@@ -248,3 +248,16 @@ def project_comment_delete_view(request, pk):
         comment.delete()
 
     return redirect('projects:project_detail', pk=project_pk)
+
+@login_required
+def project_bulk_delete_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        selected_projects = request.POST.getlist('selected_projects')
+
+        if selected_projects:
+            Project.objects.filter(id__in=selected_projects).delete()
+
+    return redirect('projects:project_list')
