@@ -47,5 +47,44 @@ def engineer_create_view(request):
         form = EngineerForm()
 
     return render(request, 'engineers/engineer_form.html', {
-        'form': form
+        'form': form,
+        'page_title': 'Add Engineer',
+        'button_text': 'Save Engineer',
     })
+
+
+@login_required
+def engineer_edit_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    engineer = get_object_or_404(Engineer, pk=pk)
+
+    if request.method == 'POST':
+        form = EngineerForm(request.POST, instance=engineer)
+
+        if form.is_valid():
+            form.save()
+            return redirect('engineers:engineer_detail', pk=engineer.pk)
+    else:
+        form = EngineerForm(instance=engineer)
+
+    return render(request, 'engineers/engineer_form.html', {
+        'form': form,
+        'page_title': 'Edit Engineer',
+        'button_text': 'Save Changes',
+    })
+
+
+@login_required
+def engineer_delete_view(request, pk):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    engineer = get_object_or_404(Engineer, pk=pk)
+
+    if request.method == 'POST':
+        engineer.delete()
+        return redirect('engineers:engineer_list')
+
+    return redirect('engineers:engineer_detail', pk=engineer.pk)
