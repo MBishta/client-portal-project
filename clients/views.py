@@ -88,3 +88,17 @@ def client_delete_view(request, pk):
         return redirect('clients:client_list')
 
     return redirect('clients:client_detail', pk=client.pk)
+
+
+@login_required
+def client_bulk_delete_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        selected_clients = request.POST.getlist('selected_clients')
+
+        if selected_clients:
+            Client.objects.filter(id__in=selected_clients).delete()
+
+    return redirect('clients:client_list')
