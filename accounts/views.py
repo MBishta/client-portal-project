@@ -75,8 +75,16 @@ def user_create_view(request):
         form = PortalUserCreationForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            user = form.save()
+
+            if user.role == 'CLIENT':
+                return redirect('clients:client_add')
+
+            elif user.role == 'ENGINEER':
+                return redirect('engineers:engineer_add')
+
             return redirect('accounts:user_list')
+
     else:
         form = PortalUserCreationForm()
 
@@ -86,7 +94,6 @@ def user_create_view(request):
         'button_text': 'Create User',
         'is_edit': False,
     })
-
 
 @login_required
 def user_edit_view(request, pk):
