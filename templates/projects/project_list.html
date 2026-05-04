@@ -179,7 +179,9 @@
         <table class="projects-table">
             <tr>
                 {% if request.user.role == 'ADMIN' %}
-                    <th>Select</th>
+                    <th>
+                       <input type="checkbox" onclick="toggleProjectCheckboxes(this)">
+                    </th>
                 {% endif %}
                 <th>Code</th>
                 <th>Project Name</th>
@@ -291,6 +293,14 @@
         }
 
         window.location.href = "{% url 'projects:project_list' %}?" + params.toString();
+    }
+
+    function toggleProjectCheckboxes(source) {
+         const checkboxes = document.querySelectorAll('input[name="selected_projects"]');
+
+         checkboxes.forEach(function(checkbox) {
+               checkbox.checked = source.checked;
+        });
     }
 </script>
 
