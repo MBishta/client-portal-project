@@ -114,10 +114,16 @@
         {% csrf_token %}
 
         {% if request.user.role == 'ADMIN' %}
-            <div class="top-actions-row">
+          <div class="top-actions-row">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="{% url 'engineers:engineer_add' %}" class="btn btn-primary">
+                    Add Engineer
+                </a>
+                
                 <button type="submit" class="btn btn-danger">
                     Delete Selected
                 </button>
+            </div>
 
                 <div class="search-box">
                     <input type="text"
