@@ -110,7 +110,7 @@
 {% if engineers %}
     <form method="post"
           action="{% url 'engineers:engineer_bulk_delete' %}"
-          onsubmit="return confirm('Are you sure you want to delete the selected engineers?');">
+          onsubmit="return confirm('Are you sure you want to delete this engineer? This may affect projects assigned to this engineer.');"
         {% csrf_token %}
 
         {% if request.user.role == 'ADMIN' %}
@@ -208,7 +208,7 @@
                                 <form method="post"
                                       action="{% url 'engineers:engineer_delete' engineer.pk %}"
                                       style="margin: 0;"
-                                      onsubmit="return confirm('Are you sure you want to delete this engineer?');">
+                                      onsubmit="return confirm('Are you sure you want to delete this engineer? This may affect projects assigned to this engineer.');"
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">
                                         Delete
