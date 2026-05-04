@@ -140,9 +140,11 @@
         <table class="clients-table">
             <tr>
                 {% if request.user.role == 'ADMIN' %}
-                    <th>Select</th>
+                <th>
+                   <input type="checkbox" onclick="toggleClientCheckboxes(this)">
+                </th>
                 {% endif %}
-                <th>Client Name</th>
+                <th>Client Name</th>پ
                 <th>User Account</th>
                 <th>Company</th>
                 <th>Phone</th>
@@ -248,6 +250,14 @@
         }
 
         window.location.href = "{% url 'clients:client_list' %}?" + params.toString();
+    }
+
+    function toggleClientCheckboxes(source) {
+          const checkboxes = document.querySelectorAll('input[name="selected_clients"]');
+
+        checkboxes.forEach(function(checkbox) {
+           checkbox.checked = source.checked;
+        });
     }
 </script>
 

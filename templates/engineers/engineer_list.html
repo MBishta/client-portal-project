@@ -140,7 +140,9 @@
         <table class="engineers-table">
             <tr>
                 {% if request.user.role == 'ADMIN' %}
-                    <th>Select</th>
+            <th>
+                <input type="checkbox" onclick="toggleEngineerCheckboxes(this)">
+            </th>        
                 {% endif %}
                 <th>Engineer Name</th>
                 <th>User Account</th>
@@ -250,6 +252,15 @@
         }
 
         window.location.href = "{% url 'engineers:engineer_list' %}?" + params.toString();
+    }
+    
+    function toggleEngineerCheckboxes(source) {
+        const checkboxes = document.querySelectorAll('input[name="selected_engineers"]');
+        
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = source.checked;
+        });
+        
     }
 </script>
 
