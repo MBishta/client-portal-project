@@ -120,7 +120,7 @@
         <div class="modal-box">
             <h2>Reset Password</h2>
 
-            <form method="post">
+            <form method="post" onsubmit="return validatePasswordReset();">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="reset_password">
 
@@ -144,6 +144,27 @@
 
         function closePasswordModal() {
             document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function validatePasswordReset() {
+            const passwordFields = document.querySelectorAll('#passwordModal input[type="password"]');
+
+            if (passwordFields.length >= 2) {
+                const newPassword = passwordFields[0].value.trim();
+                const confirmPassword = passwordFields[1].value.trim();
+
+                if (!newPassword || !confirmPassword) {
+                    alert('Please enter and confirm the new password.');
+                    return false;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    alert("Passwords don't match.");
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         {% if password_changed %}
