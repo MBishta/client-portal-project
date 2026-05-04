@@ -167,6 +167,16 @@ def project_delete_view(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
     if request.method == 'POST':
+        project_name = str(project)
+
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='Project',
+            object_name=project_name,
+            description=f'Project deleted: {project_name}'
+        )
+
         project.delete()
         return redirect('projects:project_list')
 
