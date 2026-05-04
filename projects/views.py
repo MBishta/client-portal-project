@@ -88,10 +88,67 @@ def project_edit_view(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
     if request.method == 'POST':
+        old_project_name = project.project_name
+        old_project_code = project.project_code
+        old_client = project.client
+        old_project_type = project.project_type
+        old_location = project.location
+        old_start_date = project.start_date
+        old_expected_end_date = project.expected_end_date
+        old_current_stage = project.current_stage
+        old_status = project.status
+        old_description = project.description
+
         form = ProjectForm(request.POST, instance=project)
 
         if form.is_valid():
-            form.save()
+            project = form.save()
+
+            changes = []
+
+            if old_project_name != project.project_name:
+                changes.append(f'Project Name: {old_project_name} -> {project.project_name}')
+
+            if old_project_code != project.project_code:
+                changes.append(f'Project Code: {old_project_code} -> {project.project_code}')
+
+            if old_client != project.client:
+                changes.append(f'Client: {old_client} -> {project.client}')
+
+            if old_project_type != project.project_type:
+                changes.append(f'Project Type: {old_project_type} -> {project.project_type}')
+
+            if old_location != project.location:
+                changes.append(f'Location: {old_location} -> {project.location}')
+
+            if old_start_date != project.start_date:
+                changes.append(f'Start Date: {old_start_date} -> {project.start_date}')
+
+            if old_expected_end_date != project.expected_end_date:
+                changes.append(f'Expected End Date: {old_expected_end_date} -> {project.expected_end_date}')
+
+            if old_current_stage != project.current_stage:
+                changes.append(f'Stage: {old_current_stage} -> {project.current_stage}')
+
+            if old_status != project.status:
+                changes.append(f'Status: {old_status} -> {project.status}')
+
+            if old_description != project.description:
+                changes.append('Description changed')
+
+            description = f'Project updated: {project.project_name}'
+
+            if changes:
+                description += ' | Changes: ' + ', '.join(changes)
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.UPDATE,
+                model_name='Project',
+                object_name=str(project),
+                description=description
+            )
+
             return redirect('projects:project_detail', pk=project.pk)
     else:
         form = ProjectForm(instance=project)
@@ -101,7 +158,6 @@ def project_edit_view(request, pk):
         'page_title': 'Edit Project',
         'button_text': 'Save Changes',
     })
-
 
 @login_required
 def project_delete_view(request, pk):
