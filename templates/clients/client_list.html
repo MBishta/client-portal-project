@@ -110,7 +110,7 @@
 {% if clients %}
     <form method="post"
           action="{% url 'clients:client_bulk_delete' %}"
-          onsubmit="return confirm('Are you sure you want to delete the selected clients?');">
+          onsubmit="return confirm('Are you sure you want to delete this client? This may affect related projects linked to this client.');"
         {% csrf_token %}
 
         {% if request.user.role == 'ADMIN' %}
@@ -206,7 +206,7 @@
                                 <form method="post"
                                       action="{% url 'clients:client_delete' client.pk %}"
                                       style="margin: 0;"
-                                      onsubmit="return confirm('Are you sure you want to delete this client?');">
+                                      onsubmit="return confirm('Are you sure you want to delete this client? This may affect related projects linked to this client.');"
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">
                                         Delete
