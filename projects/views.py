@@ -8,7 +8,7 @@ from .forms import (
     ProjectCommentEditForm,
     ProjectFileForm,
 )
-from .models import Project, ProjectComment, ProjectFile
+from .models import ActivityLog, Project, ProjectComment, ProjectFile
 
 
 @login_required
@@ -57,10 +57,19 @@ def project_create_view(request):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST)
-
+        
+        
         if form.is_valid():
-            form.save()
-            return redirect('projects:project_list')
+            project = form.save()
+
+            ActivityLog.objects.create(
+              user=request.user,
+              action=ActivityLog.Action.CREATE,
+              model_name='Project',
+              object_name=str(project),
+              description=f'Project created: {project.project_name}'
+    )
+        return redirect('projects:project_list') 
     else:
         form = ProjectForm()
 

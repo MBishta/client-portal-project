@@ -100,32 +100,31 @@ class ProjectComment(models.Model):
     def __str__(self):
         return f"{self.project.project_code} - {self.sender.username}"
     
-    class ActivityLog(models.Model):
-        class Action(models.TextChoices):
-            CREATE = 'CREATE', 'Create'
-            UPDATE = 'UPDATE', 'Update'
-            DELETE = 'DELETE', 'Delete'
-            
-            
-        user = models.ForeignKey(
-            'accounts.User',
-            on_delete=models.SET_NULL,
-            null=True,
-            blank=True,
-            related_name='activity_logs'
-    )
-        action = models.CharField(
-            max_length=20,
-            choices=Action.choices
-    )
-        model_name = models.CharField(max_length=100)
-        object_name = models.CharField(max_length=255)
-        description = models.TextField(blank=True, null=True)
-        created_at = models.DateTimeField(auto_now_add=True)
+class ActivityLog(models.Model):
+    class Action(models.TextChoices):
+        CREATE = 'CREATE', 'Create'
+        UPDATE = 'UPDATE', 'Update'
+        DELETE = 'DELETE', 'Delete'
 
-        class Meta:
-            ordering = ['-created_at']
+    user = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='activity_logs'
+    )
+    action = models.CharField(
+        max_length=20,
+        choices=Action.choices
+    )
+    model_name = models.CharField(max_length=100)
+    object_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-        def __str__(self):
-            username = self.user.username if self.user else 'System'
-            return f"{username} - {self.action} - {self.model_name} - {self.object_name}"
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        username = self.user.username if self.user else 'System'
+        return f"{username} - {self.action} - {self.model_name} - {self.object_name}"
