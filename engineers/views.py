@@ -51,6 +51,8 @@ def engineer_create_view(request):
     if request.user.role != 'ADMIN':
         return redirect('accounts:dashboard')
 
+    user_id = request.GET.get('user_id')
+
     if request.method == 'POST':
         form = EngineerForm(request.POST)
 
@@ -58,7 +60,12 @@ def engineer_create_view(request):
             form.save()
             return redirect('engineers:engineer_list')
     else:
-        form = EngineerForm()
+        initial_data = {}
+
+        if user_id:
+            initial_data['user'] = user_id
+
+        form = EngineerForm(initial=initial_data)
 
     return render(request, 'engineers/engineer_form.html', {
         'form': form,

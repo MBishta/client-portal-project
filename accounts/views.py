@@ -88,12 +88,11 @@ def user_create_view(request):
 
         if form.is_valid():
             user = form.save()
-
-            if user.role == 'CLIENT':
-                return redirect('clients:client_add')
-
-            elif user.role == 'ENGINEER':
-                return redirect('engineers:engineer_add')
+            
+        if user.role == 'CLIENT':
+            return redirect(f'/clients/add/?user_id={user.id}')
+        elif user.role == 'ENGINEER':
+            return redirect(f'/engineers/add/?user_id={user.id}')
 
             return redirect('accounts:user_list')
 

@@ -49,6 +49,8 @@ def client_create_view(request):
     if request.user.role != 'ADMIN':
         return redirect('accounts:dashboard')
 
+    user_id = request.GET.get('user_id')
+
     if request.method == 'POST':
         form = ClientForm(request.POST)
 
@@ -56,7 +58,12 @@ def client_create_view(request):
             form.save()
             return redirect('clients:client_list')
     else:
-        form = ClientForm()
+        initial_data = {}
+
+        if user_id:
+            initial_data['user'] = user_id
+
+        form = ClientForm(initial=initial_data)
 
     return render(request, 'clients/client_form.html', {
         'form': form,
