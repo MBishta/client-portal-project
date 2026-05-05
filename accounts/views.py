@@ -310,3 +310,18 @@ def activity_log_view(request):
     return render(request, 'accounts/activity_log.html', {
         'activity_logs': activity_logs,
     })
+
+
+@login_required
+def activity_log_bulk_delete_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        selected_logs = request.POST.getlist('selected_logs')
+
+        if selected_logs:
+            ActivityLog.objects.filter(id__in=selected_logs).delete()
+            messages.success(request, f'{len(selected_logs)} activity log(s) deleted successfully.')
+
+    return redirect('accounts:activity_log')

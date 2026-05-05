@@ -9,6 +9,14 @@
         margin-bottom: 20px;
     }
 
+    .top-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 15px;
+    }
+
     .logs-table {
         width: 100%;
         border-collapse: collapse;
@@ -47,6 +55,11 @@
         font-size: 13px;
     }
 
+    .btn-danger {
+        background: #dc3545;
+        color: white !important;
+    }
+
     .btn-secondary {
         background: #6b7280;
         color: white !important;
@@ -62,15 +75,39 @@
 
 <div class="page-header">
     <h1>Activity Log</h1>
-
-    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
-        Back to Dashboard
-    </a>
 </div>
 
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message|escapejs }}");
+        {% endfor %}
+    </script>
+{% endif %}
+
 {% if activity_logs %}
+    <form id="activityLogDeleteForm"
+          method="post"
+          action="{% url 'accounts:activity_log_bulk_delete' %}"
+          onsubmit="return confirmDeleteSelectedLogs();">
+        {% csrf_token %}
+    </form>
+
+    <div class="top-actions-row">
+        <button type="submit" form="activityLogDeleteForm" class="btn btn-danger">
+            Delete Selected
+        </button>
+
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
     <table class="logs-table">
         <tr>
+            <th>
+                <input type="checkbox" onclick="toggleActivityLogCheckboxes(this)">
+            </th>
             <th>Date / Time</th>
             <th>User</th>
             <th>Action</th>
@@ -81,6 +118,12 @@
 
         {% for log in activity_logs %}
             <tr>
+                <td>
+                    <input type="checkbox"
+                           name="selected_logs"
+                           value="{{ log.pk }}"
+                           form="activityLogDeleteForm">
+                </td>
                 <td>{{ log.created_at }}</td>
                 <td>
                     {% if log.user %}
@@ -97,9 +140,37 @@
         {% endfor %}
     </table>
 {% else %}
+    <div class="top-actions-row" style="justify-content: flex-end;">
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
     <div class="empty-message">
         <p>No activity logs found.</p>
     </div>
 {% endif %}
+
+<script>
+    function toggleActivityLogCheckboxes(source) {
+        const checkboxes = document.querySelectorAll('input[name="selected_logs"]');
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = source.checked;
+        });
+    }
+
+    function confirmDeleteSelectedLogs() {
+        const selectedLogs = document.querySelectorAll('input[name="selected_logs"]:checked');
+        const selectedCount = selectedLogs.length;
+
+        if (selectedCount === 0) {
+            alert('Please select at least one activity log to delete.');
+            return false;
+        }
+
+        return confirm('Are you sure you want to delete ' + selectedCount + ' selected activity log(s)?');
+    }
+</script>
 
 {% endblock %}
