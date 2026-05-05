@@ -92,10 +92,55 @@ def engineer_edit_view(request, pk):
     engineer = get_object_or_404(Engineer, pk=pk)
 
     if request.method == 'POST':
+        old_user = engineer.user
+        old_engineer_name = engineer.engineer_name
+        old_department = engineer.department
+        old_phone = engineer.phone
+        old_email = engineer.email
+        old_specialization = engineer.specialization
+        old_is_active = engineer.is_active
+
         form = EngineerForm(request.POST, instance=engineer)
 
         if form.is_valid():
-            form.save()
+            engineer = form.save()
+
+            changes = []
+
+            if old_user != engineer.user:
+                changes.append(f'User: {old_user} -> {engineer.user}')
+
+            if old_engineer_name != engineer.engineer_name:
+                changes.append(f'Engineer Name: {old_engineer_name} -> {engineer.engineer_name}')
+
+            if old_department != engineer.department:
+                changes.append(f'Department: {old_department} -> {engineer.department}')
+
+            if old_phone != engineer.phone:
+                changes.append(f'Phone: {old_phone} -> {engineer.phone}')
+
+            if old_email != engineer.email:
+                changes.append(f'Email: {old_email} -> {engineer.email}')
+
+            if old_specialization != engineer.specialization:
+                changes.append(f'Specialization: {old_specialization} -> {engineer.specialization}')
+
+            if old_is_active != engineer.is_active:
+                changes.append(f'Active: {old_is_active} -> {engineer.is_active}')
+
+            description = f'Engineer updated: {engineer.engineer_name}'
+
+            if changes:
+                description += ' | Changes: ' + ', '.join(changes)
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.UPDATE,
+                model_name='Engineer',
+                object_name=str(engineer),
+                description=description
+            )
+
             return redirect('engineers:engineer_detail', pk=engineer.pk)
     else:
         form = EngineerForm(instance=engineer)
