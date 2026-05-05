@@ -18,6 +18,28 @@
         margin-top: 0;
     }
 
+    .dashboard-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-actions a {
+        display: inline-block;
+        background: #0d6efd;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .dashboard-actions a:hover {
+        background: #0b5ed7;
+    }
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -54,23 +76,6 @@
         transition: 0.2s;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
-
-    .quick-actions {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .quick-actions a {
-        display: inline-block;
-        background: #0d6efd;
-        color: white;
-        padding: 10px 14px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-    }
 </style>
 
 <div class="dashboard-header">
@@ -97,14 +102,38 @@
     </p>
 </div>
 
+{% if request.user.role == 'ADMIN' %}
+    <div class="dashboard-actions">
+        <a href="{% url 'accounts:user_add' %}">
+            Add User
+        </a>
+
+        <a href="{% url 'clients:client_add' %}">
+            Add Client
+        </a>
+
+        <a href="{% url 'engineers:engineer_add' %}">
+            Add Engineer
+        </a>
+
+        <a href="{% url 'projects:project_add' %}">
+            Add Project
+        </a>
+
+        <a href="{% url 'accounts:activity_log' %}">
+            Activity Log
+        </a>
+    </div>
+{% endif %}
+
 <div class="stats-grid">
     {% if request.user.role == 'ADMIN' %}
 
         <a href="{% url 'accounts:user_list' %}" class="stat-link">
             <div class="stat-card">
-               <h3>Total Users</h3>
-            <div class="stat-number">{{ total_users }}</div>
-         </div>
+                <h3>Total Users</h3>
+                <div class="stat-number">{{ total_users }}</div>
+            </div>
         </a>
 
         <a href="{% url 'clients:client_list' %}" class="stat-link">
@@ -186,41 +215,6 @@
             <div class="stat-number">{{ active_projects_count }}</div>
         </div>
 
-    {% endif %}
-</div>
-
-<div class="quick-actions">
-    <h2>Quick Actions</h2>
-
-    
-
-    {% if request.user.role == 'ADMIN' %}
-        <a href="{% url 'accounts:user_add' %}" style="margin-left: 10px;">
-            Add User
-        </a>
-
-        <a href="{% url 'clients:client_add' %}" style="margin-left: 10px;">
-            Add Client
-        </a>
-        <a href="{% url 'engineers:engineer_add' %}" style="margin-left: 10px;">
-            Add Engineer
-        </a>
-
-        <a href="{% url 'projects:project_add' %}" style="margin-left: 10px;">
-           Add Project
-        </a>
-
-     <a href="{% url 'projects:project_list' %}" style="margin-left: 10px;">
-        {% if request.user.role == 'ADMIN' %}
-            Manage Projects
-        {% elif request.user.role == 'ENGINEER' %}
-            My Assigned Projects
-        {% elif request.user.role == 'CLIENT' %}
-            My Projects
-        {% else %}
-            View Projects
-        {% endif %}
-    </a>
     {% endif %}
 </div>
 
