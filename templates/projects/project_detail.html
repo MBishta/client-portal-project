@@ -95,50 +95,62 @@
     }
 
     .file-grid {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 220px);
         gap: 18px;
         margin-bottom: 20px;
     }
 
     .file-card {
-        width: 180px;
+        width: 220px;
         background: #ffffff;
-        padding: 12px;
-        border-radius: 8px;
+        padding: 14px;
+        border-radius: 10px;
         border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
     .file-preview {
         width: 100%;
-        height: 120px;
-        object-fit: cover;
+        height: 90px;
+        object-fit: contain;
+        object-position: center center;
+        display: block;
         border: 1px solid #ddd;
-        border-radius: 6px;
+        border-radius: 8px;   
         background: #f9fafb;
+}
     }
 
     .file-placeholder {
-        height: 120px;
+        height: 90px;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 1px solid #ddd;
-        border-radius: 6px;
+        border-radius: 8px;
         background: #f9fafb;
         color: #374151;
+        font-weight: bold;
     }
 
     .file-title {
-        margin: 10px 0 5px 0;
+        margin: 10px 0 6px 0;
         font-size: 14px;
+        font-weight: bold;
         word-break: break-word;
+    }
+
+    .file-meta {
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.5;
     }
 
     .file-actions {
         display: flex;
         gap: 8px;
-        margin-top: 10px;
+        margin-top: 12px;
     }
 
     .btn {
@@ -343,7 +355,7 @@
                             </a>
                         </p>
 
-                        <small>
+                        <div class="file-meta">
                             Uploaded by:
                             {% if file.uploaded_by %}
                                 {{ file.uploaded_by.username }}
@@ -351,8 +363,10 @@
                                 Unknown
                             {% endif %}
                             <br>
+                            Uploaded at: {{ file.uploaded_at }}
+                            <br>
                             Visible to Client: {{ file.visible_to_client }}
-                        </small>
+                        </div>
 
                         {% if file.uploaded_by == request.user %}
                             <div class="file-actions">
@@ -360,7 +374,10 @@
                                     Edit
                                 </a>
 
-                                <form method="post" action="{% url 'projects:project_file_delete' file.pk %}" style="margin: 0; width: 100%;">
+                                <form method="post"
+                                      action="{% url 'projects:project_file_delete' file.pk %}"
+                                      style="margin: 0; width: 100%;"
+                                      onsubmit="return confirm('Are you sure you want to delete this file?');">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger btn-full">
                                         Delete
@@ -419,7 +436,10 @@
                                     Edit
                                 </a>
 
-                                <form method="post" action="{% url 'projects:project_comment_delete' comment.pk %}" style="margin: 0;">
+                                <form method="post"
+                                      action="{% url 'projects:project_comment_delete' comment.pk %}"
+                                      style="margin: 0;"
+                                      onsubmit="return confirm('Are you sure you want to delete this comment?');">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger" style="width: 70px;">
                                         Delete
