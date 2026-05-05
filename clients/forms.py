@@ -24,7 +24,7 @@ class ClientForm(forms.ModelForm):
             'client_name': 'Client Name *',
             'company_name': 'Company Name',
             'phone': 'Mobile Number *',
-            'email': 'Email *',
+            'email': 'Email ',
             'address': 'Address',
             'is_active': 'Active',
         }
@@ -46,7 +46,7 @@ class ClientForm(forms.ModelForm):
         self.fields['user'].required = True
         self.fields['client_name'].required = True
         self.fields['phone'].required = True
-        self.fields['email'].required = True
+        self.fields['email'].required = False
 
     def clean_client_name(self):
         client_name = self.cleaned_data.get('client_name')

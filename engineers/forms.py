@@ -24,7 +24,7 @@ class EngineerForm(forms.ModelForm):
             'engineer_name': 'Engineer Name *',
             'department': 'Department *',
             'phone': 'Mobile Number *',
-            'email': 'Email *',
+            'email': 'Email ',
             'specialization': 'Specialization',
             'is_active': 'Active',
         }
@@ -47,7 +47,7 @@ class EngineerForm(forms.ModelForm):
         self.fields['engineer_name'].required = True
         self.fields['department'].required = True
         self.fields['phone'].required = True
-        self.fields['email'].required = True
+        self.fields['email'].required = False
 
     def clean_engineer_name(self):
         engineer_name = self.cleaned_data.get('engineer_name')
