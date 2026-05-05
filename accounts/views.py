@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from clients.models import Client
 from engineers.models import Engineer
 from projects.models import Project
+from projects.models import ActivityLog
+
 
 from .forms import (
     PortalUserCreationForm,
@@ -88,11 +90,20 @@ def user_create_view(request):
 
         if form.is_valid():
             user = form.save()
-            
-        if user.role == 'CLIENT':
-            return redirect(f'/clients/add/?user_id={user.id}')
-        elif user.role == 'ENGINEER':
-            return redirect(f'/engineers/add/?user_id={user.id}')
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.CREATE,
+                model_name='User',
+                object_name=user.username,
+                description=f'User created: {user.username} with role {user.role}'
+            )
+
+            if user.role == 'CLIENT':
+                return redirect(f'/clients/add/?user_id={user.id}')
+
+            elif user.role == 'ENGINEER':
+                return redirect(f'/engineers/add/?user_id={user.id}')
 
             return redirect('accounts:user_list')
 
