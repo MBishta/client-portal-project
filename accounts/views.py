@@ -6,9 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from clients.models import Client
 from engineers.models import Engineer
-from projects.models import Project
-from projects.models import ActivityLog
-
+from projects.models import ActivityLog, Project
 
 from .forms import (
     PortalUserCreationForm,
@@ -102,7 +100,7 @@ def user_create_view(request):
             if user.role == 'CLIENT':
                 return redirect(f'/clients/add/?user_id={user.id}')
 
-            elif user.role == 'ENGINEER':
+            if user.role == 'ENGINEER':
                 return redirect(f'/engineers/add/?user_id={user.id}')
 
             return redirect('accounts:user_list')
@@ -116,6 +114,7 @@ def user_create_view(request):
         'button_text': 'Create User',
         'is_edit': False,
     })
+
 
 @login_required
 def user_edit_view(request, pk):
@@ -221,30 +220,6 @@ def user_delete_view(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
     if request.method == 'POST':
-        # Prevent deleting the currently logged-in user
-        if user_obj == request.user:
-            return redirect('accounts:user_list')
-
-        # Prevent deleting the last admin user
-        if user_obj.role == 'ADMIN':
-            admin_count = User.objects.filter(role='ADMIN').count()
-
-            if admin_count <= 1:
-                return redirect('accounts:user_list')
-
-        user_obj.delete()
-
-    return redirect('accounts:user_list')
-
-
-@login_required
-def user_delete_view(request, pk):
-    if request.user.role != 'ADMIN':
-        return redirect('accounts:dashboard')
-
-    user_obj = get_object_or_404(User, pk=pk)
-
-    if request.method == 'POST':
         if user_obj == request.user:
             messages.error(request, 'You cannot delete your own account.')
             return redirect('accounts:user_list')
@@ -255,6 +230,17 @@ def user_delete_view(request, pk):
             if admin_count <= 1:
                 messages.error(request, 'You cannot delete the last admin account.')
                 return redirect('accounts:user_list')
+
+        username = user_obj.username
+        user_role = user_obj.role
+
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='User',
+            object_name=username,
+            description=f'User deleted: {username} with role {user_role}'
+        )
 
         user_obj.delete()
         messages.success(request, 'User deleted successfully.')
@@ -288,6 +274,17 @@ def user_bulk_delete_view(request):
                     if admin_count <= 1:
                         skipped_last_admin = True
                         continue
+
+                username = user_obj.username
+                user_role = user_obj.role
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.DELETE,
+                    model_name='User',
+                    object_name=username,
+                    description=f'User deleted: {username} with role {user_role}'
+                )
 
                 user_obj.delete()
                 deleted_count += 1
