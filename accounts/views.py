@@ -306,9 +306,30 @@ def activity_log_view(request):
         return redirect('accounts:dashboard')
 
     activity_logs = ActivityLog.objects.all()
+    search_query = request.GET.get('q')
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+
+    if search_query:
+        activity_logs = activity_logs.filter(
+            Q(user__username__icontains=search_query) |
+            Q(action__icontains=search_query) |
+            Q(model_name__icontains=search_query) |
+            Q(object_name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        ).distinct()
+
+    if from_date:
+        activity_logs = activity_logs.filter(created_at__date__gte=from_date)
+
+    if to_date:
+        activity_logs = activity_logs.filter(created_at__date__lte=to_date)
 
     return render(request, 'accounts/activity_log.html', {
         'activity_logs': activity_logs,
+        'search_query': search_query,
+        'from_date': from_date,
+        'to_date': to_date,
     })
 
 

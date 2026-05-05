@@ -17,6 +17,41 @@
         gap: 15px;
     }
 
+    .left-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .search-box input[type="text"] {
+        padding: 8px;
+        width: 320px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .search-box input[type="date"] {
+        padding: 7px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .date-filter {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
+        color: #374151;
+    }
+
     .logs-table {
         width: 100%;
         border-collapse: collapse;
@@ -55,6 +90,11 @@
         font-size: 13px;
     }
 
+    .btn-primary {
+        background: #0d6efd;
+        color: white !important;
+    }
+
     .btn-danger {
         background: #dc3545;
         color: white !important;
@@ -85,15 +125,15 @@
     </script>
 {% endif %}
 
-{% if activity_logs %}
-    <form id="activityLogDeleteForm"
-          method="post"
-          action="{% url 'accounts:activity_log_bulk_delete' %}"
-          onsubmit="return confirmDeleteSelectedLogs();">
-        {% csrf_token %}
-    </form>
+<form id="activityLogDeleteForm"
+      method="post"
+      action="{% url 'accounts:activity_log_bulk_delete' %}"
+      onsubmit="return confirmDeleteSelectedLogs();">
+    {% csrf_token %}
+</form>
 
-    <div class="top-actions-row">
+<div class="top-actions-row">
+    <div class="left-actions">
         <button type="submit" form="activityLogDeleteForm" class="btn btn-danger">
             Delete Selected
         </button>
@@ -103,6 +143,38 @@
         </a>
     </div>
 
+    <div class="search-box">
+        <input type="text"
+               id="activityLogSearchInput"
+               value="{{ search_query|default:'' }}"
+               placeholder="Search logs by user, action, model, object, or description"
+               onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchActivityLogs(); }">
+
+        <div class="date-filter">
+            <label for="fromDateInput">From</label>
+            <input type="date"
+                   id="fromDateInput"
+                   value="{{ from_date|default:'' }}">
+        </div>
+
+        <div class="date-filter">
+            <label for="toDateInput">To</label>
+            <input type="date"
+                   id="toDateInput"
+                   value="{{ to_date|default:'' }}">
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="searchActivityLogs()">
+            Search
+        </button>
+
+        <a href="{% url 'accounts:activity_log' %}" class="btn btn-secondary">
+            Clear
+        </a>
+    </div>
+</div>
+
+{% if activity_logs %}
     <table class="logs-table">
         <tr>
             <th>
@@ -140,18 +212,44 @@
         {% endfor %}
     </table>
 {% else %}
-    <div class="top-actions-row" style="justify-content: flex-end;">
-        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
-            Back to Dashboard
-        </a>
-    </div>
-
     <div class="empty-message">
         <p>No activity logs found.</p>
     </div>
 {% endif %}
 
 <script>
+    function searchActivityLogs() {
+        const searchInput = document.getElementById('activityLogSearchInput');
+        const fromDateInput = document.getElementById('fromDateInput');
+        const toDateInput = document.getElementById('toDateInput');
+
+        const searchValue = searchInput ? searchInput.value.trim() : '';
+        const fromDateValue = fromDateInput ? fromDateInput.value : '';
+        const toDateValue = toDateInput ? toDateInput.value : '';
+
+        const params = new URLSearchParams(window.location.search);
+
+        if (searchValue) {
+            params.set('q', searchValue);
+        } else {
+            params.delete('q');
+        }
+
+        if (fromDateValue) {
+            params.set('from_date', fromDateValue);
+        } else {
+            params.delete('from_date');
+        }
+
+        if (toDateValue) {
+            params.set('to_date', toDateValue);
+        } else {
+            params.delete('to_date');
+        }
+
+        window.location.href = "{% url 'accounts:activity_log' %}?" + params.toString();
+    }
+
     function toggleActivityLogCheckboxes(source) {
         const checkboxes = document.querySelectorAll('input[name="selected_logs"]');
 
