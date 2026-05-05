@@ -44,7 +44,7 @@ def project_list_view(request):
             Q(assigned_engineers__engineer_name__icontains=search_query)
         ).distinct()
 
-    paginator = Paginator(projects, 25)
+    paginator = Paginator(projects, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
