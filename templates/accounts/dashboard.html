@@ -76,6 +76,62 @@
         transition: 0.2s;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
+
+.recent-activity-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-top: 10px;
+}
+
+.recent-activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.recent-activity-header h2 {
+    margin: 0;
+}
+
+.recent-activity-header a {
+    background: #6b7280;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.recent-activity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-activity-table th {
+    background: #1f2937;
+    color: white;
+    text-align: left;
+    padding: 10px;
+    font-size: 13px;
+}
+
+.recent-activity-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 13px;
+    vertical-align: top;
+}
+
+.recent-activity-table tr:hover {
+    background: #f9fafb;
+}
+
+
+
 </style>
 
 <div class="dashboard-header">
@@ -217,5 +273,47 @@
 
     {% endif %}
 </div>
+
+{% if request.user.role == 'ADMIN' %}
+    <div class="recent-activity-card">
+        <div class="recent-activity-header">
+            <h2>Recent Activity</h2>
+
+            <a href="{% url 'accounts:activity_log' %}">
+                View All Activity Log
+            </a>
+        </div>
+
+        {% if recent_activities %}
+            <table class="recent-activity-table">
+                <tr>
+                    <th>Date / Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Model</th>
+                    <th>Description</th>
+                </tr>
+
+                {% for log in recent_activities %}
+                    <tr>
+                        <td>{{ log.created_at }}</td>
+                        <td>
+                            {% if log.user %}
+                                {{ log.user.username }}
+                            {% else %}
+                                System
+                            {% endif %}
+                        </td>
+                        <td>{{ log.get_action_display }}</td>
+                        <td>{{ log.model_name }}</td>
+                        <td>{{ log.description }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No recent activity found.</p>
+        {% endif %}
+    </div>
+{% endif %}
 
 {% endblock %}

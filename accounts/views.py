@@ -29,6 +29,7 @@ def dashboard_view(request):
         context['total_clients'] = Client.objects.count()
         context['total_engineers'] = Engineer.objects.count()
         context['total_projects'] = Project.objects.count()
+        context['recent_activities'] = ActivityLog.objects.all()[:10]
 
     elif request.user.role == 'ENGINEER':
         my_projects = Project.objects.filter(
@@ -53,7 +54,6 @@ def dashboard_view(request):
         ).count()
 
     return render(request, 'accounts/dashboard.html', context)
-
 
 @login_required
 def user_list_view(request):
