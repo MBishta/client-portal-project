@@ -142,6 +142,21 @@
         border: 1px solid #ccc;
         border-radius: 6px;
     }
+
+    .pagination {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pagination span {
+        font-size: 14px;
+        color: #374151;
+        padding: 7px 10px;
+    }
 </style>
 
 <div class="page-header">
@@ -314,6 +329,38 @@
         {% endfor %}
     </table>
 
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-secondary"
+                   href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    First
+                </a>
+
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    Previous
+                </a>
+            {% endif %}
+
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    Next
+                </a>
+
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    Last
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
 {% else %}
     <div class="top-actions-row" style="justify-content: flex-end;">
         <div class="search-box">
@@ -349,6 +396,8 @@
         } else {
             params.delete('q');
         }
+
+        params.delete('page');
 
         window.location.href = "{% url 'projects:project_list' %}?" + params.toString();
     }
