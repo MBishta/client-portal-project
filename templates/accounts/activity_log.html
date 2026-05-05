@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Log{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .logs-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .logs-table th {
+        background: #1f2937;
+        color: white;
+        text-align: left;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .logs-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .logs-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .btn {
+        display: inline-block;
+        border: none;
+        padding: 7px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 13px;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white !important;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+</style>
+
+<div class="page-header">
+    <h1>Activity Log</h1>
+
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+{% if activity_logs %}
+    <table class="logs-table">
+        <tr>
+            <th>Date / Time</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Model</th>
+            <th>Object</th>
+            <th>Description</th>
+        </tr>
+
+        {% for log in activity_logs %}
+            <tr>
+                <td>{{ log.created_at }}</td>
+                <td>
+                    {% if log.user %}
+                        {{ log.user.username }}
+                    {% else %}
+                        System
+                    {% endif %}
+                </td>
+                <td>{{ log.get_action_display }}</td>
+                <td>{{ log.model_name }}</td>
+                <td>{{ log.object_name }}</td>
+                <td>{{ log.description }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="empty-message">
+        <p>No activity logs found.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

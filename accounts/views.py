@@ -299,3 +299,14 @@ def user_bulk_delete_view(request):
             messages.error(request, 'The last admin account was not deleted.')
 
     return redirect('accounts:user_list')
+
+@login_required
+def activity_log_view(request):
+    if request.user.role != 'ADMIN':
+        return redirect('accounts:dashboard')
+
+    activity_logs = ActivityLog.objects.all()
+
+    return render(request, 'accounts/activity_log.html', {
+        'activity_logs': activity_logs,
+    })
