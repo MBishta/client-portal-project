@@ -89,10 +89,55 @@ def client_edit_view(request, pk):
     client = get_object_or_404(Client, pk=pk)
 
     if request.method == 'POST':
+        old_user = client.user
+        old_client_name = client.client_name
+        old_company_name = client.company_name
+        old_phone = client.phone
+        old_email = client.email
+        old_address = client.address
+        old_is_active = client.is_active
+
         form = ClientForm(request.POST, instance=client)
 
         if form.is_valid():
-            form.save()
+            client = form.save()
+
+            changes = []
+
+            if old_user != client.user:
+                changes.append(f'User: {old_user} -> {client.user}')
+
+            if old_client_name != client.client_name:
+                changes.append(f'Client Name: {old_client_name} -> {client.client_name}')
+
+            if old_company_name != client.company_name:
+                changes.append(f'Company Name: {old_company_name} -> {client.company_name}')
+
+            if old_phone != client.phone:
+                changes.append(f'Phone: {old_phone} -> {client.phone}')
+
+            if old_email != client.email:
+                changes.append(f'Email: {old_email} -> {client.email}')
+
+            if old_address != client.address:
+                changes.append('Address changed')
+
+            if old_is_active != client.is_active:
+                changes.append(f'Active: {old_is_active} -> {client.is_active}')
+
+            description = f'Client updated: {client.client_name}'
+
+            if changes:
+                description += ' | Changes: ' + ', '.join(changes)
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.UPDATE,
+                model_name='Client',
+                object_name=str(client),
+                description=description
+            )
+
             return redirect('clients:client_detail', pk=client.pk)
     else:
         form = ClientForm(instance=client)
@@ -102,7 +147,6 @@ def client_edit_view(request, pk):
         'page_title': 'Edit Client',
         'button_text': 'Save Changes',
     })
-
 
 @login_required
 def client_delete_view(request, pk):
