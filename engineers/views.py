@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EngineerForm
@@ -26,8 +27,13 @@ def engineer_list_view(request):
             Q(user__username__icontains=search_query)
         ).distinct()
 
+    paginator = Paginator(engineers, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'engineers/engineer_list.html', {
-        'engineers': engineers,
+        'engineers': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query,
     })
 
