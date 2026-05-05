@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EngineerForm
 from .models import Engineer
+from projects.models import ActivityLog
 
 
 @login_required
@@ -57,7 +58,16 @@ def engineer_create_view(request):
         form = EngineerForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            engineer = form.save()
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.CREATE,
+                model_name='Engineer',
+                object_name=str(engineer),
+                description=f'Engineer created: {engineer.engineer_name}'
+            )
+
             return redirect('engineers:engineer_list')
     else:
         initial_data = {}
