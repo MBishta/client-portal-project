@@ -53,6 +53,39 @@
         color: #1f2937;
     }
 
+    .status-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .status-new {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .status-in-progress {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-waiting-client {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .status-completed {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
     .section {
         background: white;
         padding: 20px;
@@ -203,8 +236,6 @@
         Project Code: {{ project.project_code }}
     </p>
 
-   
-
     <div class="cards-grid">
         <div class="card">
             <h2>Project Information</h2>
@@ -231,7 +262,32 @@
 
             <div class="info-row">
                 <span class="label">Status:</span>
-                <span class="badge">{{ project.get_status_display }}</span>
+
+                {% if project.status == 'NEW' %}
+                    <span class="status-badge status-new">
+                        {{ project.get_status_display }}
+                    </span>
+                {% elif project.status == 'IN_PROGRESS' %}
+                    <span class="status-badge status-in-progress">
+                        {{ project.get_status_display }}
+                    </span>
+                {% elif project.status == 'WAITING_CLIENT' %}
+                    <span class="status-badge status-waiting-client">
+                        {{ project.get_status_display }}
+                    </span>
+                {% elif project.status == 'COMPLETED' %}
+                    <span class="status-badge status-completed">
+                        {{ project.get_status_display }}
+                    </span>
+                {% elif project.status == 'CANCELLED' %}
+                    <span class="status-badge status-cancelled">
+                        {{ project.get_status_display }}
+                    </span>
+                {% else %}
+                    <span class="status-badge status-new">
+                        {{ project.get_status_display }}
+                    </span>
+                {% endif %}
             </div>
 
             <div class="info-row">
@@ -354,22 +410,23 @@
                         <div class="comment-meta">
                             {{ comment.created_at }}
                         </div>
-                        {% if comment.sender == request.user %}
-    <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <a href="{% url 'projects:project_comment_edit' comment.pk %}"
-           class="btn btn-primary"
-           style="width: 70px; text-align: center; box-sizing: border-box;">
-            Edit
-        </a>
 
-        <form method="post" action="{% url 'projects:project_comment_delete' comment.pk %}" style="margin: 0;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger" style="width: 70px;">
-                Delete
-            </button>
-        </form>
-    </div>
-{% endif %}
+                        {% if comment.sender == request.user %}
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <a href="{% url 'projects:project_comment_edit' comment.pk %}"
+                                   class="btn btn-primary"
+                                   style="width: 70px; text-align: center; box-sizing: border-box;">
+                                    Edit
+                                </a>
+
+                                <form method="post" action="{% url 'projects:project_comment_delete' comment.pk %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" style="width: 70px;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
