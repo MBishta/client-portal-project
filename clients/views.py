@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ClientForm
 from .models import Client
+from projects.models import ActivityLog
 
 
 @login_required
@@ -43,7 +44,6 @@ def client_detail_view(request, pk):
         'projects': projects,
     })
 
-
 @login_required
 def client_create_view(request):
     if request.user.role != 'ADMIN':
@@ -55,7 +55,16 @@ def client_create_view(request):
         form = ClientForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            client = form.save()
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.CREATE,
+                model_name='Client',
+                object_name=str(client),
+                description=f'Client created: {client.client_name}'
+            )
+
             return redirect('clients:client_list')
     else:
         initial_data = {}
