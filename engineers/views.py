@@ -160,11 +160,20 @@ def engineer_delete_view(request, pk):
     engineer = get_object_or_404(Engineer, pk=pk)
 
     if request.method == 'POST':
+        engineer_name = str(engineer)
+
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='Engineer',
+            object_name=engineer_name,
+            description=f'Engineer deleted: {engineer_name}'
+        )
+
         engineer.delete()
         return redirect('engineers:engineer_list')
 
     return redirect('engineers:engineer_detail', pk=engineer.pk)
-
 
 @login_required
 def engineer_bulk_delete_view(request):
