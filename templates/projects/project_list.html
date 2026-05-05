@@ -55,9 +55,33 @@
         display: inline-block;
         padding: 5px 9px;
         border-radius: 6px;
-        background: #eef2ff;
-        color: #1f2937;
         font-size: 13px;
+        font-weight: bold;
+    }
+
+    .status-new {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .status-in-progress {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-waiting-client {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .status-completed {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
     }
 
     .empty-message {
@@ -240,9 +264,31 @@
                 <td>{{ project.get_current_stage_display }}</td>
 
                 <td>
-                    <span class="status-badge">
-                        {{ project.get_status_display }}
-                    </span>
+                    {% if project.status == 'NEW' %}
+                        <span class="status-badge status-new">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% elif project.status == 'IN_PROGRESS' %}
+                        <span class="status-badge status-in-progress">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% elif project.status == 'WAITING_CLIENT' %}
+                        <span class="status-badge status-waiting-client">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% elif project.status == 'COMPLETED' %}
+                        <span class="status-badge status-completed">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% elif project.status == 'CANCELLED' %}
+                        <span class="status-badge status-cancelled">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-new">
+                            {{ project.get_status_display }}
+                        </span>
+                    {% endif %}
                 </td>
 
                 {% if request.user.role == 'ADMIN' %}
