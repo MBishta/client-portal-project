@@ -29,25 +29,25 @@ def project_list_view(request):
     else:
         projects = Project.objects.none()
 
-
     status_filter = request.GET.get('status')
     search_query = request.GET.get('q')
 
-    if status_filter: projects = projects.filter(status=status_filter)
+    if status_filter:
+        projects = projects.filter(status=status_filter)
 
-    if search_query: projects = projects.filter(
-        Q(project_name__icontains=search_query) |
-        Q(project_code__icontains=search_query) |
-        Q(client__client_name__icontains=search_query) |
-        Q(assigned_engineers__engineer_name__icontains=search_query)
-    ).distinct()
-        
+    if search_query:
+        projects = projects.filter(
+            Q(project_name__icontains=search_query) |
+            Q(project_code__icontains=search_query) |
+            Q(client__client_name__icontains=search_query) |
+            Q(assigned_engineers__engineer_name__icontains=search_query)
+        ).distinct()
+
     return render(request, 'projects/project_list.html', {
-
-    'projects': projects,
-    'status_filter': status_filter,
-    'search_query': search_query,
-})
+        'projects': projects,
+        'status_filter': status_filter,
+        'search_query': search_query,
+    })
 
 
 @login_required
@@ -57,19 +57,19 @@ def project_create_view(request):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST)
-        
-        
+
         if form.is_valid():
             project = form.save()
 
             ActivityLog.objects.create(
-              user=request.user,
-              action=ActivityLog.Action.CREATE,
-              model_name='Project',
-              object_name=str(project),
-              description=f'Project created: {project.project_name}'
-    )
-        return redirect('projects:project_list') 
+                user=request.user,
+                action=ActivityLog.Action.CREATE,
+                model_name='Project',
+                object_name=str(project),
+                description=f'Project created: {project.project_name}'
+            )
+
+            return redirect('projects:project_list')
     else:
         form = ProjectForm()
 
@@ -159,6 +159,7 @@ def project_edit_view(request, pk):
         'button_text': 'Save Changes',
     })
 
+
 @login_required
 def project_delete_view(request, pk):
     if request.user.role != 'ADMIN':
@@ -180,9 +181,7 @@ def project_delete_view(request, pk):
         project.delete()
         return redirect('projects:project_list')
 
-    return render(request, 'projects/project_confirm_delete.html', {
-        'project': project
-    })
+    return redirect('projects:project_detail', pk=project.pk)
 
 
 @login_required
@@ -233,6 +232,15 @@ def project_detail_view(request, pk):
                     comment.visible_to_client = True
 
                 comment.save()
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.CREATE,
+                    model_name='ProjectComment',
+                    object_name=f'Comment on {project}',
+                    description=f'Comment added on project: {project}'
+                )
+
                 return redirect('projects:project_detail', pk=project.pk)
 
         elif form_type == 'file' and request.user.role in ['ADMIN', 'ENGINEER']:
@@ -243,6 +251,15 @@ def project_detail_view(request, pk):
                 project_file.project = project
                 project_file.uploaded_by = request.user
                 project_file.save()
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.CREATE,
+                    model_name='ProjectFile',
+                    object_name=project_file.file.name,
+                    description=f'File uploaded to project: {project}'
+                )
+
                 return redirect('projects:project_detail', pk=project.pk)
 
     return render(request, 'projects/project_detail.html', {
@@ -263,12 +280,40 @@ def project_file_edit_view(request, pk):
     )
 
     project_pk = project_file.project.pk
+    old_description = project_file.description
+    old_visible_to_client = project_file.visible_to_client
+    old_file_name = project_file.file.name
 
     if request.method == 'POST':
         form = ProjectFileForm(request.POST, request.FILES, instance=project_file)
 
         if form.is_valid():
-            form.save()
+            project_file = form.save()
+
+            changes = []
+
+            if old_description != project_file.description:
+                changes.append('Description changed')
+
+            if old_visible_to_client != project_file.visible_to_client:
+                changes.append(f'Visible to Client: {old_visible_to_client} -> {project_file.visible_to_client}')
+
+            if old_file_name != project_file.file.name:
+                changes.append(f'File changed: {old_file_name} -> {project_file.file.name}')
+
+            description = f'File updated on project: {project_file.project}'
+
+            if changes:
+                description += ' | Changes: ' + ', '.join(changes)
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.UPDATE,
+                model_name='ProjectFile',
+                object_name=project_file.file.name,
+                description=description
+            )
+
             return redirect('projects:project_detail', pk=project_pk)
     else:
         form = ProjectFileForm(instance=project_file)
@@ -288,8 +333,18 @@ def project_file_delete_view(request, pk):
     )
 
     project_pk = project_file.project.pk
+    project_name = str(project_file.project)
+    file_name = project_file.file.name
 
     if request.method == 'POST':
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='ProjectFile',
+            object_name=file_name,
+            description=f'File deleted from project: {project_name}'
+        )
+
         project_file.delete()
 
     return redirect('projects:project_detail', pk=project_pk)
@@ -304,12 +359,42 @@ def project_comment_edit_view(request, pk):
     )
 
     project_pk = comment.project.pk
+    old_message = comment.message
+    old_attachment = comment.attachment.name if comment.attachment else ''
+    old_visible_to_client = comment.visible_to_client
 
     if request.method == 'POST':
         form = ProjectCommentEditForm(request.POST, request.FILES, instance=comment)
 
         if form.is_valid():
-            form.save()
+            comment = form.save()
+
+            changes = []
+
+            if old_message != comment.message:
+                changes.append('Message changed')
+
+            new_attachment = comment.attachment.name if comment.attachment else ''
+
+            if old_attachment != new_attachment:
+                changes.append(f'Attachment changed: {old_attachment or "None"} -> {new_attachment or "None"}')
+
+            if old_visible_to_client != comment.visible_to_client:
+                changes.append(f'Visible to Client: {old_visible_to_client} -> {comment.visible_to_client}')
+
+            description = f'Comment updated on project: {comment.project}'
+
+            if changes:
+                description += ' | Changes: ' + ', '.join(changes)
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.Action.UPDATE,
+                model_name='ProjectComment',
+                object_name=f'Comment on {comment.project}',
+                description=description
+            )
+
             return redirect('projects:project_detail', pk=project_pk)
     else:
         form = ProjectCommentEditForm(instance=comment)
@@ -329,11 +414,21 @@ def project_comment_delete_view(request, pk):
     )
 
     project_pk = comment.project.pk
+    project_name = str(comment.project)
 
     if request.method == 'POST':
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='ProjectComment',
+            object_name=f'Comment on {project_name}',
+            description=f'Comment deleted from project: {project_name}'
+        )
+
         comment.delete()
 
     return redirect('projects:project_detail', pk=project_pk)
+
 
 @login_required
 def project_bulk_delete_view(request):
@@ -344,6 +439,19 @@ def project_bulk_delete_view(request):
         selected_projects = request.POST.getlist('selected_projects')
 
         if selected_projects:
-            Project.objects.filter(id__in=selected_projects).delete()
+            projects_to_delete = Project.objects.filter(id__in=selected_projects)
+
+            for project in projects_to_delete:
+                project_name = str(project)
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.DELETE,
+                    model_name='Project',
+                    object_name=project_name,
+                    description=f'Project deleted: {project_name}'
+                )
+
+                project.delete()
 
     return redirect('projects:project_list')
