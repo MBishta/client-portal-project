@@ -2,11 +2,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from clients.models import Client
 from engineers.models import Engineer
 from projects.models import ActivityLog, Project
+
 
 from .forms import (
     PortalUserCreationForm,
@@ -325,8 +327,13 @@ def activity_log_view(request):
     if to_date:
         activity_logs = activity_logs.filter(created_at__date__lte=to_date)
 
+    paginator = Paginator(activity_logs, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'accounts/activity_log.html', {
-        'activity_logs': activity_logs,
+        'activity_logs': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query,
         'from_date': from_date,
         'to_date': to_date,

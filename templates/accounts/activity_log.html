@@ -105,6 +105,21 @@
         color: white !important;
     }
 
+    .pagination {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pagination span {
+        font-size: 14px;
+        color: #374151;
+        padding: 7px 10px;
+    }
+
     .empty-message {
         background: white;
         padding: 20px;
@@ -211,6 +226,38 @@
             </tr>
         {% endfor %}
     </table>
+
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-secondary"
+                   href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">
+                    First
+                </a>
+
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">
+                    Previous
+                </a>
+            {% endif %}
+
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">
+                    Next
+                </a>
+
+                <a class="btn btn-secondary"
+                   href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">
+                    Last
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
 {% else %}
     <div class="empty-message">
         <p>No activity logs found.</p>
@@ -246,6 +293,8 @@
         } else {
             params.delete('to_date');
         }
+
+        params.delete('page');
 
         window.location.href = "{% url 'accounts:activity_log' %}?" + params.toString();
     }
