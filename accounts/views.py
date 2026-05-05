@@ -133,16 +133,70 @@ def user_edit_view(request, pk):
             if password_form.is_valid():
                 user_obj.set_password(password_form.cleaned_data['new_password'])
                 user_obj.save()
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.UPDATE,
+                    model_name='User',
+                    object_name=user_obj.username,
+                    description=f'Password reset for user: {user_obj.username}'
+                )
+
                 return redirect(f'/accounts/users/{user_obj.pk}/edit/?password_changed=1')
 
             form = PortalUserEditForm(instance=user_obj)
 
         else:
+            old_username = user_obj.username
+            old_first_name = user_obj.first_name
+            old_last_name = user_obj.last_name
+            old_email = user_obj.email
+            old_role = user_obj.role
+            old_is_active = user_obj.is_active
+            old_is_staff = user_obj.is_staff
+
             form = PortalUserEditForm(request.POST, instance=user_obj)
             password_form = PortalUserPasswordResetForm()
 
             if form.is_valid():
-                form.save()
+                user_obj = form.save()
+
+                changes = []
+
+                if old_username != user_obj.username:
+                    changes.append(f'Username: {old_username} -> {user_obj.username}')
+
+                if old_first_name != user_obj.first_name:
+                    changes.append(f'First Name: {old_first_name} -> {user_obj.first_name}')
+
+                if old_last_name != user_obj.last_name:
+                    changes.append(f'Last Name: {old_last_name} -> {user_obj.last_name}')
+
+                if old_email != user_obj.email:
+                    changes.append(f'Email: {old_email} -> {user_obj.email}')
+
+                if old_role != user_obj.role:
+                    changes.append(f'Role: {old_role} -> {user_obj.role}')
+
+                if old_is_active != user_obj.is_active:
+                    changes.append(f'Active: {old_is_active} -> {user_obj.is_active}')
+
+                if old_is_staff != user_obj.is_staff:
+                    changes.append(f'Staff: {old_is_staff} -> {user_obj.is_staff}')
+
+                description = f'User updated: {user_obj.username}'
+
+                if changes:
+                    description += ' | Changes: ' + ', '.join(changes)
+
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action=ActivityLog.Action.UPDATE,
+                    model_name='User',
+                    object_name=user_obj.username,
+                    description=description
+                )
+
                 return redirect('accounts:user_list')
     else:
         form = PortalUserEditForm(instance=user_obj)
