@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Engineer{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
 
@@ -51,7 +51,7 @@
     }
 </style>
 
-<h1>Add Engineer</h1>
+<h1>{{ page_title }}</h1>
 
 <div class="form-card">
     <form method="post">
@@ -59,12 +59,31 @@
 
         {{ form.as_p }}
 
-        <button type="submit" class="btn btn-primary">Save Engineer</button>
+        <button type="submit" class="btn btn-primary">{{ button_text }}</button>
 
         <a href="{% url 'engineers:engineer_list' %}" class="btn btn-secondary">
             Cancel
         </a>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userSelect = document.getElementById('id_user');
+
+        if (userSelect) {
+            const addUserOption = document.createElement('option');
+            addUserOption.value = '__add_user__';
+            addUserOption.textContent = '+ Add New User';
+            userSelect.appendChild(addUserOption);
+
+            userSelect.addEventListener('change', function() {
+                if (userSelect.value === '__add_user__') {
+                    window.location.href = "{% url 'accounts:user_add' %}";
+                }
+            });
+        }
+    });
+</script>
 
 {% endblock %}
