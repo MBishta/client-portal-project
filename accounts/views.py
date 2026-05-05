@@ -74,8 +74,13 @@ def user_list_view(request):
             Q(role__icontains=search_query)
         ).distinct()
 
+    paginator = Paginator(users, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'accounts/user_list.html', {
-        'users': users,
+        'users': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query,
     })
 
