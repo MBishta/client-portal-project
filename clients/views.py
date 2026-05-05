@@ -156,6 +156,16 @@ def client_delete_view(request, pk):
     client = get_object_or_404(Client, pk=pk)
 
     if request.method == 'POST':
+        client_name = str(client)
+
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.Action.DELETE,
+            model_name='Client',
+            object_name=client_name,
+            description=f'Client deleted: {client_name}'
+        )
+
         client.delete()
         return redirect('clients:client_list')
 
